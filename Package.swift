@@ -14,7 +14,8 @@ let package = Package(
             dependencies: [
                 .product(name: "WhisperKit", package: "WhisperKit"),
                 .product(name: "FluidAudio", package: "FluidAudio")
-            ]
+            ],
+            exclude: ["README.md", "AGENTS.md"]
         ),
         .testTarget(
             name: "VoiceScribeTests",

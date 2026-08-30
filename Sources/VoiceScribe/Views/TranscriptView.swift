@@ -3,6 +3,55 @@ import SwiftUI
 struct TranscriptView: View {
     var body: some View {
         let session = AppComposition.session
+        VStack(spacing: 0) {
+            if session.isRecording {
+                RecordingControls(session: session)
+                Divider()
+            }
+            TranscriptFeed(session: session)
+        }
+    }
+}
+
+struct RecordingControls: View {
+    let session: RecordingSession
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: session.isPaused ? "pause.circle.fill" : "record.circle")
+                .foregroundStyle(session.isPaused ? Color.orange : Color.red)
+            Text(session.elapsedText)
+                .font(.system(size: 13, weight: .semibold))
+                .monospacedDigit()
+            if session.isPaused {
+                Text("Paused")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button {
+                session.togglePause()
+            } label: {
+                Image(systemName: session.isPaused ? "play.fill" : "pause.fill")
+            }
+            .help(session.isPaused ? "Resume" : "Pause")
+            Button {
+                session.stop()
+            } label: {
+                Image(systemName: "stop.fill")
+            }
+            .help("Stop and save")
+        }
+        .buttonStyle(.borderless)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+    }
+}
+
+struct TranscriptFeed: View {
+    let session: RecordingSession
+
+    var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 4) {

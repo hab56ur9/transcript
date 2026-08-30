@@ -6,19 +6,31 @@ struct MenuBarIcon: View {
 
     var body: some View {
         let session = AppComposition.session
-        Image(systemName: session.isRecording ? "mic.fill" : "mic")
-            .onAppear {
-                guard session.isRecording else { return }
-                showTranscript()
+        HStack(spacing: 3) {
+            Image(systemName: iconName(for: session))
+            if session.isRecording {
+                Text(session.elapsedText)
+                    .monospacedDigit()
             }
-            .onChange(of: session.isRecording) { _, isRecording in
-                guard isRecording else {
-                    NSSound(named: "Pop")?.play()
-                    return
-                }
-                NSSound(named: "Glass")?.play()
-                showTranscript()
+        }
+        .onAppear {
+            guard session.isRecording else { return }
+            showTranscript()
+        }
+        .onChange(of: session.isRecording) { _, isRecording in
+            guard isRecording else {
+                NSSound(named: "Pop")?.play()
+                return
             }
+            NSSound(named: "Glass")?.play()
+            showTranscript()
+        }
+    }
+
+    private func iconName(for session: RecordingSession) -> String {
+        guard session.isRecording else { return "mic" }
+        guard session.isPaused == false else { return "mic.slash" }
+        return "mic.fill"
     }
 
     private func showTranscript() {
@@ -36,6 +48,13 @@ struct MenuView: View {
             toggleRecording(session)
         }
         .keyboardShortcut("r")
+
+        if session.isRecording {
+            Button(session.isPaused ? "Resume Recording" : "Pause Recording") {
+                session.togglePause()
+            }
+            .keyboardShortcut("p")
+        }
 
         Button("Show Transcript") {
             openTranscript()

@@ -4,6 +4,13 @@ protocol AudioSource: AnyObject {
     var onSamples: (([Float]) -> Void)? { get set }
     func start() async throws
     func stop()
+    func pause()
+    func resume()
+}
+
+extension AudioSource {
+    func pause() {}
+    func resume() {}
 }
 
 protocol SpeechToText: AnyObject {
@@ -34,6 +41,7 @@ protocol TranscriptWriter {
 protocol StateReporter {
     func recordingStarted(livePath: String?)
     func recordingSaved(path: String)
+    func paused()
     func idle()
     func exited()
 }
