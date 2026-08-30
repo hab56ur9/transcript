@@ -9,10 +9,10 @@ struct TranscriptView: View {
                 Divider()
             }
             TabView {
-                TranscriptFeed(session: session)
-                    .tabItem { Text("Transcript") }
                 MemoPad(session: session)
                     .tabItem { Text("Memo") }
+                TranscriptFeed(session: session)
+                    .tabItem { Text("Transcript") }
             }
         }
     }

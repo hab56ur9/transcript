@@ -25,7 +25,7 @@ settings    ~/Library/Application Support/VoiceScribe/settings.json
 - Launch with the single launcher command. It rebuilds only when sources changed; otherwise it starts instantly from the cached binary.
 - Prefer running from the user's own terminal, so macOS permissions attach to the right host app.
 - A microphone icon in the menu bar means the app is running; while recording it fills and shows the elapsed time, and a slashed icon means paused. The menu offers start/stop, pause/resume, opening the transcript window, choosing the transcription language (Korean default, English available), toggling audio saving, and quitting.
-- The transcript window carries the recording controls (elapsed time, pause/resume, stop) and two tabs: the live transcript, and a Memo pad saved next to the transcript as a companion file that the meeting-note agent reads at generation time.
+- The transcript window carries the recording controls (elapsed time, pause/resume, stop) and two tabs: a Memo pad first (the default tab), then the live transcript. The memo autosaves next to the transcript as a companion file that the meeting-note agent reads at generation time.
 - The language choice persists in the settings file and applies from the next chunk onward.
 
 Launch command:
