@@ -27,7 +27,8 @@ Section rules on top of the template:
 
 - Header: infer the title from the discussion, take the date from the file name, list attendees as speaker labels. Map labels to real names only when the user provides the mapping.
 - Discussion: three to five topic sections following the flow of the conversation.
-- Decisions: agreed items only.
+- Decisions: agreed items only. When agreement is ambiguous in the transcript, the item belongs in Open Questions, not Decisions.
+- Action items: spoken commitments only — someone said they will do it, or it was explicitly assigned. Ideas, possibilities, and attendance at already-scheduled meetings are not action items; when in doubt, keep it in Discussion.
 - My notes: fill with any memo the user handed over; otherwise leave the section empty for later editing.
 
 Template file:
