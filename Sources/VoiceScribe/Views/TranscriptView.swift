@@ -8,8 +8,50 @@ struct TranscriptView: View {
                 RecordingControls(session: session)
                 Divider()
             }
-            TranscriptFeed(session: session)
+            TabView {
+                TranscriptFeed(session: session)
+                    .tabItem { Text("Transcript") }
+                MemoPad(session: session)
+                    .tabItem { Text("Memo") }
+            }
         }
+    }
+}
+
+struct MemoPad: View {
+    let session: RecordingSession
+
+    @State private var text = ""
+    @State private var loadedURL: URL?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if session.memoURL == nil {
+                Text("Memo becomes available when a recording starts.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            if let memoURL = session.memoURL {
+                TextEditor(text: $text)
+                    .font(.system(size: 13))
+                    .padding(4)
+                    .onAppear { load(from: memoURL) }
+                    .onChange(of: session.memoURL) { _, changedURL in
+                        guard let changedURL else { return }
+                        load(from: changedURL)
+                    }
+                    .onChange(of: text) { _, updated in
+                        try? updated.write(to: memoURL, atomically: true, encoding: .utf8)
+                    }
+            }
+        }
+    }
+
+    private func load(from url: URL) {
+        guard loadedURL != url else { return }
+        loadedURL = url
+        text = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
     }
 }
 
