@@ -4,6 +4,24 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 BIN="$ROOT/.build/release/VoiceScribe"
 
+if [ "${1:-}" = "--watch" ]
+then
+  STATE="$HOME/Library/Application Support/VoiceScribe/state.json"
+  while true
+  do
+    if [ ! -f "$STATE" ]
+    then
+      exit 0
+    fi
+    if ! grep -qE '"status":"(recording|paused)"' "$STATE"
+    then
+      cat "$STATE"
+      exit 0
+    fi
+    sleep 2
+  done
+fi
+
 if ! printf '%s\n' "$@" | grep -q -- "--backfill"
 then
   if pgrep -f ".build/release/VoiceScribe" > /dev/null
