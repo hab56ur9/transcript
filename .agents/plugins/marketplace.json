@@ -1,0 +1,19 @@
+{
+  "name": "voicescribe",
+  "interface": {
+    "displayName": "VoiceScribe"
+  },
+  "plugins": [
+    {
+      "name": "voicescribe",
+      "source": {
+        "source": "local",
+        "path": "./plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

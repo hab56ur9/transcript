@@ -1,0 +1,16 @@
+{
+  "name": "voicescribe",
+  "version": "0.22.1",
+  "description": "Local realtime meeting transcriber for macOS — WhisperKit large-v3-turbo, mic + system audio capture, speaker diarization, markdown output.",
+  "author": {
+    "name": "nathan",
+    "email": "hab5bur9@gmail.com"
+  },
+  "keywords": ["transcription", "whisper", "menubar", "recording"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "VoiceScribe",
+    "shortDescription": "Local realtime meeting transcriber for macOS",
+    "category": "Productivity"
+  }
+}

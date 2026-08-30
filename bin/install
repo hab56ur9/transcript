@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+
+link() {
+  ln -sf "$ROOT/bin/voicescribe" "$1/voicescribe"
+  echo "linked: $1/voicescribe -> $ROOT/bin/voicescribe"
+}
+
+for dir in /opt/homebrew/bin /usr/local/bin "$HOME/bin"
+do
+  if [ ! -d "$dir" ]
+  then
+    continue
+  fi
+  if [ ! -w "$dir" ]
+  then
+    continue
+  fi
+  link "$dir"
+  exit 0
+done
+
+mkdir -p "$HOME/bin"
+link "$HOME/bin"
+echo "note: add \$HOME/bin to PATH if it is not already there"

@@ -1,0 +1,128 @@
+---
+name: run
+description: Guide for launching, controlling, and troubleshooting the VoiceScribe menu bar transcriber. Invoke on "voicescribe 실행", "녹음 앱 켜줘", "전사 앱 실행", "전사 모드 시작", "전사 모드 종료".
+user-invocable: true
+---
+
+# VoiceScribe
+
+Local realtime meeting transcriber for macOS. It lives in the menu bar, captures the microphone and system audio, labels every utterance by speaker, and streams text into a transcript file as people speak. Summaries are delegated to this plugin's agents: meeting-note for meetings, lecture-note for lectures.
+
+The pipeline is three immutable-input stages, each re-runnable from the previous one: audio → transcript (backfill skill, provenance: engine + source_audio) → note (agents, provenance: template + source_transcript).
+
+Key locations:
+
+```bash
+launcher    voicescribe   (on PATH, linked by bin/install)
+transcripts ~/Documents/VoiceScribe/
+state file  ~/Library/Application Support/VoiceScribe/state.json
+settings    ~/Library/Application Support/VoiceScribe/settings.json
+```
+
+## Quick Start
+
+- New machine, or the launcher command is missing → follow [setup.md](setup.md) once.
+- Launch with the single launcher command. It rebuilds only when sources changed; otherwise it starts instantly from the cached binary.
+- Prefer running from the user's own terminal, so macOS permissions attach to the right host app.
+- A microphone icon in the menu bar means the app is running. The menu offers start/stop recording, opening the transcript window, choosing the transcription language (Korean default, English available), toggling audio saving, and quitting.
+- The language choice persists in the settings file and applies from the next chunk onward.
+
+Launch command:
+
+```bash
+voicescribe
+```
+
+## Daemon Control
+
+The app stays resident once launched. Recording is toggled by signals, so app lifetime and recording state are independent.
+
+- USR1 starts recording.
+- USR2 stops and saves; the app stays resident.
+- TERM quits the app, saving first if a recording is active.
+
+Flow:
+
+- Before anything, verify the launcher command exists. If it is missing, this is a fresh machine — read [setup.md](setup.md) and complete the bootstrap first.
+- On "전사 모드 시작": if the app is alive, send USR1. If not, launch the launcher with the record flag in the background. Confirm the red icon, then end the turn.
+- The record flag is the default whenever the AI launches the app. Launch without it only when the user explicitly asks for idle standby.
+- On "전사 모드 종료": send USR2, then wait until the state file reports idle and exposes the saved transcript path. Report that path, then generate the meeting note: launch the meeting-note subagent of this plugin (on hosts without subagents, follow the meeting-note document inline), handing over the transcript path plus any memos the user shared during the meeting. Relay the note's TL;DR and saved location back to the user.
+- Send TERM only on an explicit quit request.
+- Menu bar actions coexist with signals — always verify real state before acting.
+
+Commands, in the order described above:
+
+```bash
+command -v voicescribe
+pgrep -f ".build/release/VoiceScribe"
+voicescribe --record
+pkill -USR1 -f ".build/release/VoiceScribe"
+pkill -USR2 -f ".build/release/VoiceScribe"
+pkill -TERM -f ".build/release/VoiceScribe"
+```
+
+## State
+
+The app writes its status to the state file. Always combine it with a process liveness check before acting.
+
+- Fields: status (recording, idle, exited), live transcript path, last saved transcript path, updated time.
+- Alive + recording: normal. To finish, send USR2, wait for idle, then delegate to the meeting-note agent.
+- Alive + idle: resident standby. The last saved path is the latest result; USR1 to record again.
+- Dead + exited: clean shutdown. The last saved path is the latest result.
+- Dead + recording: crash. Only what reached the live file survives.
+- The live transcript file is appended in real time. Read it when asked for the transcript so far; suggest tailing it for direct viewing.
+
+Check commands:
+
+```bash
+cat "$HOME/Library/Application Support/VoiceScribe/state.json"
+pgrep -f ".build/release/VoiceScribe"
+tail -f <live_transcript>
+```
+
+## Audio Archive
+
+Each recording also saves the raw audio per channel next to the transcripts, for listening back and future re-transcription (backfill).
+
+- Format: AAC mono 16kHz at 32kbps, roughly 14MB per hour per channel.
+- Files are named by their own start timestamp with a channel suffix; pair them with a transcript by the closest timestamp (they can differ by one second).
+- Toggle with the Save Audio menu item; the choice persists in the settings file. Default is on.
+- Backfill: archived audio can be re-transcribed headlessly — see the backfill skill of this plugin.
+
+Naming example:
+
+```bash
+~/Documents/VoiceScribe/2026-08-30-192011.md
+~/Documents/VoiceScribe/2026-08-30-192011.mic.m4a
+~/Documents/VoiceScribe/2026-08-30-192011.aux1.m4a
+```
+
+## Troubleshooting
+
+- No menu bar icon: menu bar overflow, or a crash — check the terminal log.
+- Remote side never transcribed: screen recording permission is missing.
+- Stuck on the hourglass icon: model download in progress or failed; retry with network.
+- Hallucinated text during silence: raise the silence threshold.
+- Utterances cut mid-sentence: raise the silence frame count.
+- One voice split across speaker numbers: tune the clustering threshold.
+
+Tuning reference:
+
+```bash
+Models/ChunkSplitter.swift        silenceThreshold 0.01, silenceFramesToSplit 7 (0.7s)
+Services/FluidAudioLabeler.swift  clusteringThreshold 0.7
+```
+
+## Architecture
+
+SwiftUI with hexagonal boundaries. The models layer holds the observable recording session, the utterance-splitting rule, and the five ports; the services layer implements those ports; views render the menu and transcript window; the app layer is the composition root. The session depends on ports only. Run unit tests with the standard Swift test command.
+
+Layout reference:
+
+```bash
+Models/    RecordingSession, ChunkSplitter, Utterance, ServiceProtocols
+Services/  MicCapture, SystemAudioCapture, WhisperKitEngine, FluidAudioLabeler,
+           FileTranscriptStore, FileStateStore
+Views/     MenuView, TranscriptView
+App/       VoiceScribeApp
+```

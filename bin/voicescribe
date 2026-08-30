@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+BIN="$ROOT/.build/release/VoiceScribe"
+
+if ! printf '%s\n' "$@" | grep -q -- "--backfill"
+then
+  if pgrep -f ".build/release/VoiceScribe" > /dev/null
+  then
+    echo "VoiceScribe is already running. To start recording, send: pkill -USR1 -f VoiceScribe"
+    exit 1
+  fi
+fi
+
+needs_build() {
+  if [ ! -x "$BIN" ]; then
+    return 0
+  fi
+  [ -n "$(find "$ROOT/Sources" "$ROOT/Package.swift" -newer "$BIN" 2>/dev/null | head -1)" ]
+}
+
+if needs_build; then
+  echo "VoiceScribe 빌드 중 (release)..."
+  swift build -c release --package-path "$ROOT"
+fi
+
+exec "$BIN" "$@"

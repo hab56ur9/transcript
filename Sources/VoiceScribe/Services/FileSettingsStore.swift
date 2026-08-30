@@ -1,0 +1,53 @@
+import Foundation
+
+struct FileSettingsStore: SettingsStoring {
+    private struct Settings: Codable {
+        var language: String?
+        var saveAudio: Bool?
+
+        enum CodingKeys: String, CodingKey {
+            case language
+            case saveAudio = "save_audio"
+        }
+    }
+
+    private var url: URL {
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support")
+        return support
+            .appendingPathComponent("VoiceScribe")
+            .appendingPathComponent("settings.json")
+    }
+
+    func loadLanguage() -> String? {
+        read()?.language
+    }
+
+    func loadSaveAudio() -> Bool? {
+        read()?.saveAudio
+    }
+
+    func save(language: String) {
+        update { $0.language = language }
+    }
+
+    func save(saveAudio: Bool) {
+        update { $0.saveAudio = saveAudio }
+    }
+
+    private func read() -> Settings? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder().decode(Settings.self, from: data)
+    }
+
+    private func update(_ mutate: (inout Settings) -> Void) {
+        var settings = read() ?? Settings(language: nil, saveAudio: nil)
+        mutate(&settings)
+        try? FileManager.default.createDirectory(
+            at: url.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        guard let data = try? JSONEncoder().encode(settings) else { return }
+        try? data.write(to: url, options: .atomic)
+    }
+}
