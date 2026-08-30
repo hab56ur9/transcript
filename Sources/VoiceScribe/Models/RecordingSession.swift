@@ -8,6 +8,7 @@ final class RecordingSession {
     private(set) var isPaused = false
     private(set) var elapsedSeconds = 0
     private(set) var lines: [String] = []
+    private(set) var memoURL: URL?
     private(set) var language: String
 
     var isBusy: Bool { isRecording || isFinishing }
@@ -196,6 +197,7 @@ final class RecordingSession {
         utteranceCount = 0
         lines.removeAll()
         sessionURL = try? writer.begin()
+        memoURL = sessionURL?.deletingPathExtension().appendingPathExtension("memo.md")
         state.recordingStarted(livePath: sessionURL?.path)
         if let sessionURL {
             lines.append("📝 실시간 전사: \(sessionURL.path)")

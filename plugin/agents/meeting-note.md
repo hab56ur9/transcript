@@ -29,7 +29,7 @@ Section rules on top of the template:
 - Discussion: three to five topic sections following the flow of the conversation.
 - Decisions: agreed items only. When agreement is ambiguous in the transcript, the item belongs in Open Questions, not Decisions.
 - Action items: spoken commitments only — someone said they will do it, or it was explicitly assigned. Ideas, possibilities, and attendance at already-scheduled meetings are not action items; when in doubt, keep it in Discussion.
-- My notes: fill with any memo the user handed over; otherwise leave the section empty for later editing.
+- My notes: fill with the companion memo file when one exists (same base name as the transcript with a memo suffix — written from the app's Memo tab during the meeting), plus any memo the user handed over in chat; otherwise leave the section empty for later editing. Use the memo content as context when writing the other sections too.
 
 Template file:
 
@@ -55,5 +55,6 @@ Naming example:
 
 ```bash
 ~/Documents/VoiceScribe/2026-08-30-184038.md
+~/Documents/VoiceScribe/2026-08-30-184038.memo.md
 ~/Documents/VoiceScribe/2026-08-30-184038.meeting-note.md
 ```
