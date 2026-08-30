@@ -91,8 +91,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
+    private var terminateRequested = false
+
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        guard AppComposition.session.isRecording else { return .terminateNow }
+        guard AppComposition.session.isBusy else { return .terminateNow }
+        guard terminateRequested == false else { return .terminateLater }
+        terminateRequested = true
         AppComposition.session.stop {
             NSApp.reply(toApplicationShouldTerminate: true)
         }

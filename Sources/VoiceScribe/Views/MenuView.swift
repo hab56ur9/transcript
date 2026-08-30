@@ -8,6 +8,7 @@ struct MenuBarIcon: View {
         let session = AppComposition.session
         HStack(spacing: 3) {
             Image(systemName: iconName(for: session))
+                .foregroundStyle(iconColor(for: session))
             if session.isRecording {
                 Text(session.elapsedText)
                     .monospacedDigit()
@@ -18,11 +19,7 @@ struct MenuBarIcon: View {
             showTranscript()
         }
         .onChange(of: session.isRecording) { _, isRecording in
-            guard isRecording else {
-                NSSound(named: "Pop")?.play()
-                return
-            }
-            NSSound(named: "Glass")?.play()
+            guard isRecording else { return }
             showTranscript()
         }
     }
@@ -31,6 +28,12 @@ struct MenuBarIcon: View {
         guard session.isRecording else { return "mic" }
         guard session.isPaused == false else { return "mic.slash" }
         return "mic.fill"
+    }
+
+    private func iconColor(for session: RecordingSession) -> Color {
+        guard session.isRecording else { return .primary }
+        guard session.isPaused == false else { return .orange }
+        return .red
     }
 
     private func showTranscript() {
@@ -44,20 +47,32 @@ struct MenuView: View {
 
     var body: some View {
         let session = AppComposition.session
-        Button(session.isRecording ? "Stop Recording" : "Start Recording") {
+
+        if session.isRecording {
+            Label(statusText(for: session), systemImage: session.isPaused ? "mic.slash" : "mic.fill")
+            Divider()
+        }
+
+        Button {
             toggleRecording(session)
+        } label: {
+            Label(session.isRecording ? "Stop" : "Record", systemImage: session.isRecording ? "stop.fill" : "record.circle")
         }
         .keyboardShortcut("r")
 
         if session.isRecording {
-            Button(session.isPaused ? "Resume Recording" : "Pause Recording") {
+            Button {
                 session.togglePause()
+            } label: {
+                Label(session.isPaused ? "Resume" : "Pause", systemImage: session.isPaused ? "play.fill" : "pause.fill")
             }
             .keyboardShortcut("p")
         }
 
-        Button("Show Transcript") {
+        Button {
             openTranscript()
+        } label: {
+            Label("Show Transcript", systemImage: "text.alignleft")
         }
         .keyboardShortcut("t")
 
@@ -80,6 +95,11 @@ struct MenuView: View {
             NSApp.terminate(nil)
         }
         .keyboardShortcut("q")
+    }
+
+    private func statusText(for session: RecordingSession) -> String {
+        guard session.isPaused else { return "\(session.elapsedText) · Recording" }
+        return "\(session.elapsedText) · Paused"
     }
 
     private func toggleRecording(_ session: RecordingSession) {
