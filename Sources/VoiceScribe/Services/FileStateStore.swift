@@ -38,6 +38,12 @@ struct FileStateStore: StateReporter {
         }
     }
 
+    func paused() {
+        update { state in
+            state.status = "paused"
+        }
+    }
+
     func idle() {
         update { state in
             state.status = "idle"

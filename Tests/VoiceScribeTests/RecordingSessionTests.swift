@@ -96,6 +96,10 @@ final class FakeStateReporter: StateReporter {
         savedPath = path
     }
 
+    func paused() {
+        transitions.append("paused")
+    }
+
     func idle() {
         transitions.append("idle")
     }
@@ -190,6 +194,23 @@ final class FakeStateReporter: StateReporter {
         await stopAndWait(session)
 
         #expect(speechToText.lastLanguage == "en")
+    }
+
+    @Test func pauseDropsAudioAndResumeRestores() async {
+        let source = FakeAudioSource()
+        let writer = FakeTranscriptWriter()
+        let state = FakeStateReporter()
+        let session = makeSession(source: source, writer: writer, state: state)
+
+        await session.start()
+        session.pause()
+        source.onSamples?([Float](repeating: 0.5, count: 8_000))
+        session.resume()
+        source.onSamples?([Float](repeating: 0.5, count: 8_000))
+        await stopAndWait(session)
+
+        #expect(writer.appended == ["[화자1] 안녕하세요"])
+        #expect(state.transitions == ["recording", "paused", "recording", "saved"])
     }
 
     @Test func unknownSpeakerFallsBackToLastSpeaker() async {

@@ -24,7 +24,8 @@ settings    ~/Library/Application Support/VoiceScribe/settings.json
 - New machine, or the launcher command is missing → follow [setup.md](setup.md) once.
 - Launch with the single launcher command. It rebuilds only when sources changed; otherwise it starts instantly from the cached binary.
 - Prefer running from the user's own terminal, so macOS permissions attach to the right host app.
-- A microphone icon in the menu bar means the app is running. The menu offers start/stop recording, opening the transcript window, choosing the transcription language (Korean default, English available), toggling audio saving, and quitting.
+- A microphone icon in the menu bar means the app is running; while recording it fills and shows the elapsed time, and a slashed icon means paused. The menu offers start/stop, pause/resume, opening the transcript window, choosing the transcription language (Korean default, English available), toggling audio saving, and quitting.
+- The transcript window carries the recording controls: elapsed time, pause/resume, and stop.
 - The language choice persists in the settings file and applies from the next chunk onward.
 
 Launch command:
@@ -65,8 +66,9 @@ pkill -TERM -f ".build/release/VoiceScribe"
 
 The app writes its status to the state file. Always combine it with a process liveness check before acting.
 
-- Fields: status (recording, idle, exited), live transcript path, last saved transcript path, updated time.
+- Fields: status (recording, paused, idle, exited), live transcript path, last saved transcript path, updated time.
 - Alive + recording: normal. To finish, send USR2, wait for idle, then delegate to the meeting-note agent.
+- Alive + paused: the user paused from the transcript window or menu; audio and transcription are both suspended and the live path stays. Resume happens in the UI; USR2 still stops and saves.
 - Alive + idle: resident standby. The last saved path is the latest result; USR1 to record again.
 - Dead + exited: clean shutdown. The last saved path is the latest result.
 - Dead + recording: crash. Only what reached the live file survives.

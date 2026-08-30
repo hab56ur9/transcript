@@ -41,6 +41,14 @@ final class ArchivingAudioSource: AudioSource, @unchecked Sendable {
         }
     }
 
+    func pause() {
+        wrapped.pause()
+    }
+
+    func resume() {
+        wrapped.resume()
+    }
+
     private func makeFile() -> AVAudioFile? {
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let url = directory.appendingPathComponent("\(FileTranscriptStore.timestamp()).\(suffix).m4a")

@@ -5,10 +5,16 @@ import Observation
 @Observable
 final class RecordingSession {
     private(set) var isRecording = false
+    private(set) var isPaused = false
+    private(set) var elapsedSeconds = 0
     private(set) var lines: [String] = []
     private(set) var language: String
 
     var isBusy: Bool { isRecording || isFinishing }
+
+    var elapsedText: String {
+        String(format: "%02d:%02d", elapsedSeconds / 60, elapsedSeconds % 60)
+    }
 
     @ObservationIgnored private let microphone: AudioSource
     @ObservationIgnored private let auxiliarySources: [AudioSource]
@@ -26,6 +32,8 @@ final class RecordingSession {
     @ObservationIgnored private var serialTask: Task<Void, Never>?
     @ObservationIgnored private var isFinishing = false
     @ObservationIgnored private var finishWaiters: [() -> Void] = []
+    @ObservationIgnored private var ticker: Task<Void, Never>?
+    @ObservationIgnored nonisolated(unsafe) private var pauseGate = false
 
     init(
         microphone: AudioSource,
@@ -72,6 +80,39 @@ final class RecordingSession {
         isRecording = true
         beginTranscript()
         startAuxiliarySources()
+        startTicker()
+    }
+
+    func pause() {
+        guard isRecording else { return }
+        guard isPaused == false else { return }
+        isPaused = true
+        pauseGate = true
+        for source in [microphone] + auxiliarySources {
+            source.pause()
+        }
+        audioQueue.async { [weak self] in
+            self?.splitters.forEach { $0.flush() }
+        }
+        state.paused()
+    }
+
+    func resume() {
+        guard isPaused else { return }
+        isPaused = false
+        pauseGate = false
+        for source in [microphone] + auxiliarySources {
+            source.resume()
+        }
+        state.recordingStarted(livePath: sessionURL?.path)
+    }
+
+    func togglePause() {
+        guard isPaused == false else {
+            resume()
+            return
+        }
+        pause()
     }
 
     func stop(onFinished: (() -> Void)? = nil) {
@@ -83,6 +124,9 @@ final class RecordingSession {
         microphone.stop()
         auxiliarySources.forEach { $0.stop() }
         isRecording = false
+        isPaused = false
+        pauseGate = false
+        ticker?.cancel()
         audioQueue.async { [weak self] in
             guard let self else {
                 onFinished?()
@@ -104,7 +148,9 @@ final class RecordingSession {
                 Task { @MainActor in self?.enqueue(chunk: chunk) }
             }
             source.onSamples = { [weak self, splitter] samples in
-                self?.audioQueue.async { splitter.feed(samples) }
+                guard let self else { return }
+                guard self.pauseGate == false else { return }
+                self.audioQueue.async { splitter.feed(samples) }
             }
             splitters.append(splitter)
         }
@@ -153,6 +199,20 @@ final class RecordingSession {
         state.recordingStarted(livePath: sessionURL?.path)
         if let sessionURL {
             lines.append("📝 실시간 전사: \(sessionURL.path)")
+        }
+    }
+
+    private func startTicker() {
+        elapsedSeconds = 0
+        ticker = Task { [weak self] in
+            while Task.isCancelled == false {
+                try? await Task.sleep(for: .seconds(1))
+                guard let self else { return }
+                guard self.isRecording else { return }
+                if self.isPaused == false {
+                    self.elapsedSeconds += 1
+                }
+            }
         }
     }
 
