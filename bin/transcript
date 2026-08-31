@@ -130,9 +130,26 @@ then
   watch_mode
 fi
 
-if [ "${1:-}" = "--install" ]
+update_cli() {
+  local self root tmp
+  self="$(readlink -f "$0")"
+  root="$(cd "$(dirname "$self")/.." && pwd)"
+  if [ -f "$root/Package.swift" ]
+  then
+    return 0
+  fi
+  tmp="$(mktemp -d)"
+  curl -fsSL -o "$tmp/transcript" "https://raw.githubusercontent.com/$REPO/main/bin/transcript"
+  chmod +x "$tmp/transcript"
+  mv "$tmp/transcript" "$self"
+  rmdir "$tmp"
+  echo "CLI 업데이트됨: $self"
+}
+
+if [ "${1:-}" = "update" ] || [ "${1:-}" = "--install" ]
 then
   install_stable
+  update_cli
   exit 0
 fi
 
