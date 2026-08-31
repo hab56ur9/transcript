@@ -90,7 +90,7 @@ struct MenuView: View {
 
         Divider()
 
-        Button("Quit VoiceScribe") {
+        Button("Quit Transcript") {
             NSApp.terminate(nil)
         }
         .keyboardShortcut("q")

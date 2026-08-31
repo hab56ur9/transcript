@@ -1,10 +1,10 @@
 ---
 name: run
-description: Guide for launching, controlling, and troubleshooting the VoiceScribe menu bar transcriber. Invoke on "voicescribe 실행", "녹음 앱 켜줘", "전사 앱 실행", "전사 모드 시작", "전사 모드 종료".
+description: Guide for launching, controlling, and troubleshooting the Transcript menu bar transcriber. Invoke on "transcript 실행", "녹음 앱 켜줘", "전사 앱 실행", "전사 모드 시작", "전사 모드 종료".
 user-invocable: true
 ---
 
-# VoiceScribe
+# Transcript
 
 Local realtime meeting transcriber for macOS. It lives in the menu bar, captures the microphone and system audio, labels every utterance by speaker, and streams text into a transcript file as people speak. Summaries are delegated to this plugin's agents: meeting-note for meetings, lecture-note for lectures.
 
@@ -13,18 +13,18 @@ The pipeline is three immutable-input stages, each re-runnable from the previous
 Key locations:
 
 ```bash
-launcher    voicescribe   (on PATH, linked by bin/install)
-app bundle  ~/Applications/VoiceScribe.app
-transcripts ~/Documents/VoiceScribe/
-state file  ~/Library/Application Support/VoiceScribe/state.json
-settings    ~/Library/Application Support/VoiceScribe/settings.json
+launcher    transcript   (on PATH, linked by bin/install)
+app bundle  ~/Applications/Transcript.app
+transcripts ~/Documents/Transcript/
+state file  ~/Library/Application Support/Transcript/state.json
+settings    ~/Library/Application Support/Transcript/settings.json
 ```
 
 ## Quick Start
 
 - New machine, or the launcher command is missing → follow [setup.md](setup.md) once.
 - Launch with the single launcher command. It rebuilds only when sources changed, assembles the app bundle, and opens it; otherwise it starts instantly from the cached bundle.
-- The launcher opens the app bundle via open, so microphone and screen recording permissions attach to VoiceScribe.app itself — any launch host (terminal, agent, Finder) works the same.
+- The launcher opens the app bundle via open, so microphone and screen recording permissions attach to Transcript.app itself — any launch host (terminal, agent, Finder) works the same.
 - A microphone icon in the menu bar means the app is running; while recording it turns into a filled red icon, and a slashed orange icon means paused. Elapsed time lives in the transcript window, keeping the menu bar item narrow enough to survive crowded menu bars. The menu offers start/stop, pause/resume, opening the transcript window, choosing the transcription language (Korean default, English available), toggling audio saving, and quitting.
 - The transcript window carries the recording controls (elapsed time, pause/resume, stop) and two tabs: a Memo pad first (the default tab), then the live transcript. The memo autosaves next to the transcript as a companion file that the meeting-note agent reads at generation time.
 - The language choice persists in the settings file and applies from the next chunk onward.
@@ -32,7 +32,7 @@ settings    ~/Library/Application Support/VoiceScribe/settings.json
 Launch command:
 
 ```bash
-voicescribe
+transcript
 ```
 
 ## Daemon Control
@@ -56,13 +56,13 @@ Flow:
 Commands, in the order described above:
 
 ```bash
-command -v voicescribe
-pgrep -f "VoiceScribe.app/Contents/MacOS/VoiceScribe"
-voicescribe --record
-voicescribe --watch
-pkill -USR1 -f "VoiceScribe.app/Contents/MacOS/VoiceScribe"
-pkill -USR2 -f "VoiceScribe.app/Contents/MacOS/VoiceScribe"
-pkill -TERM -f "VoiceScribe.app/Contents/MacOS/VoiceScribe"
+command -v transcript
+pgrep -f "Transcript.app/Contents/MacOS/Transcript"
+transcript --record
+transcript --watch
+pkill -USR1 -f "Transcript.app/Contents/MacOS/Transcript"
+pkill -USR2 -f "Transcript.app/Contents/MacOS/Transcript"
+pkill -TERM -f "Transcript.app/Contents/MacOS/Transcript"
 ```
 
 ## State
@@ -80,8 +80,8 @@ The app writes its status to the state file. Always combine it with a process li
 Check commands:
 
 ```bash
-cat "$HOME/Library/Application Support/VoiceScribe/state.json"
-pgrep -f "VoiceScribe.app/Contents/MacOS/VoiceScribe"
+cat "$HOME/Library/Application Support/Transcript/state.json"
+pgrep -f "Transcript.app/Contents/MacOS/Transcript"
 tail -f <live_transcript>
 ```
 
@@ -97,15 +97,15 @@ Each recording also saves the raw audio per channel next to the transcripts, for
 Naming example:
 
 ```bash
-~/Documents/VoiceScribe/2026-08-30-192011.md
-~/Documents/VoiceScribe/2026-08-30-192011.mic.m4a
-~/Documents/VoiceScribe/2026-08-30-192011.aux1.m4a
+~/Documents/Transcript/2026-08-30-192011.md
+~/Documents/Transcript/2026-08-30-192011.mic.m4a
+~/Documents/Transcript/2026-08-30-192011.aux1.m4a
 ```
 
 ## Troubleshooting
 
-- No menu bar icon: menu bar overflow, or a crash — check Console or the unified log for the VoiceScribe process.
-- Mic channel stays empty (tiny .mic.m4a, transcript silent): microphone permission for VoiceScribe.app is missing or was reset — recheck System Settings, then restart the recording.
+- No menu bar icon: menu bar overflow, or a crash — check Console or the unified log for the Transcript process.
+- Mic channel stays empty (tiny .mic.m4a, transcript silent): microphone permission for Transcript.app is missing or was reset — recheck System Settings, then restart the recording.
 - Remote side never transcribed: screen recording permission is missing.
 - Permission prompts reappear after a rebuild: expected — the bundle is ad-hoc signed, so a new binary invalidates prior grants; approve once and they stick until the next rebuild.
 - Stuck on the hourglass icon: model download in progress or failed; retry with network.
@@ -131,5 +131,5 @@ Models/    RecordingSession, ChunkSplitter, Utterance, ServiceProtocols
 Services/  MicCapture, SystemAudioCapture, WhisperKitEngine, FluidAudioLabeler,
            FileTranscriptStore, FileStateStore
 Views/     MenuView, TranscriptView
-App/       VoiceScribeApp
+App/       TranscriptApp
 ```

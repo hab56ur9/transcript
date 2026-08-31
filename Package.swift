@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "VoiceScribe",
+    name: "Transcript",
     platforms: [.macOS(.v14)],
     dependencies: [
         .package(url: "https://github.com/argmaxinc/WhisperKit.git", from: "1.1.0"),
@@ -10,7 +10,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "VoiceScribe",
+            name: "Transcript",
             dependencies: [
                 .product(name: "WhisperKit", package: "WhisperKit"),
                 .product(name: "FluidAudio", package: "FluidAudio")
@@ -18,8 +18,8 @@ let package = Package(
             exclude: ["README.md", "AGENTS.md"]
         ),
         .testTarget(
-            name: "VoiceScribeTests",
-            dependencies: ["VoiceScribe"]
+            name: "TranscriptTests",
+            dependencies: ["Transcript"]
         )
     ]
 )

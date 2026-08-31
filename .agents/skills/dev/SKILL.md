@@ -1,10 +1,10 @@
 ---
 name: dev
-description: Development guide for the VoiceScribe codebase — architecture rules, code conventions, contracts, and release steps. Activate when editing Swift sources, plugin docs, or scripts in this repository.
+description: Development guide for the Transcript codebase — architecture rules, code conventions, contracts, and release steps. Activate when editing Swift sources, plugin docs, or scripts in this repository.
 user-invocable: true
 ---
 
-# VoiceScribe Development
+# Transcript Development
 
 Rules for changing this repository. The dev-review agent audits diffs against this document — keep the two in sync.
 
@@ -55,5 +55,5 @@ Files and command:
 ```bash
 plugin/.claude-plugin/plugin.json
 plugin/.codex-plugin/plugin.json
-claude plugin update --scope local voicescribe@voicescribe
+claude plugin update --scope local transcript@transcript
 ```

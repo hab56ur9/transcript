@@ -9,7 +9,7 @@ struct FileTranscriptStore: TranscriptWriter {
     init(directory: URL? = nil, engineTag: String? = nil, sourceAudio: String? = nil) {
         let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
             ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents")
-        self.directory = directory ?? documents.appendingPathComponent("VoiceScribe")
+        self.directory = directory ?? documents.appendingPathComponent("Transcript")
         self.engineTag = engineTag
         self.sourceAudio = sourceAudio
     }

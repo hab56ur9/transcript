@@ -1,4 +1,4 @@
-# VoiceScribe Agent Guide
+# Transcript Agent Guide
 
 Local realtime meeting transcriber for macOS (menu bar app). This file routes coding agents to the operational documents; those documents are the single source of truth — follow them rather than duplicating their content here.
 
@@ -13,7 +13,7 @@ Development: the coding rulebook and the diff-review agent are repo-local, and e
 ```bash
 .agents/skills/dev/SKILL.md
 .agents/agents/dev-review.md
-Sources/VoiceScribe/AGENTS.md
+Sources/Transcript/AGENTS.md
 plugin/AGENTS.md
 ```
 

@@ -7,7 +7,7 @@ final class ArchivingAudioSource: AudioSource, @unchecked Sendable {
     private let wrapped: AudioSource
     private let suffix: String
     private let directory: URL
-    private let archiveQueue = DispatchQueue(label: "voicescribe.archive")
+    private let archiveQueue = DispatchQueue(label: "transcript.archive")
     private var file: AVAudioFile?
     private let pcmFormat = AVAudioFormat(
         commonFormat: .pcmFormatFloat32,

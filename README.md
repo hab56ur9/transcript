@@ -1,4 +1,4 @@
-# VoiceScribe
+# Transcript
 
 Local realtime meeting transcriber for macOS. It lives in the menu bar, captures the microphone and system audio, transcribes on-device with Whisper (Korean/English), separates speakers, and streams text into markdown as people speak. Nothing leaves your machine.
 
@@ -16,12 +16,12 @@ audio (.m4a)  →  transcript (.md)  →  note (.meeting-note.md / .lecture-note
 
 ```bash
 claude plugin marketplace add <this-repo>
-claude plugin install voicescribe@voicescribe
-~/.claude/plugins/marketplaces/voicescribe/bin/install
+claude plugin install transcript@transcript
+~/.claude/plugins/marketplaces/transcript/bin/install
 ```
 
 ## Use
 
-Say "전사 모드 시작" to your agent, or use the menu bar icon. Outputs land in Documents/VoiceScribe. Details: plugin/skills/run/SKILL.md.
+Say "전사 모드 시작" to your agent, or use the menu bar icon. Outputs land in Documents/Transcript. Details: plugin/skills/run/SKILL.md.
 
 Requires macOS 14+ and Xcode Command Line Tools.

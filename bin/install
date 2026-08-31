@@ -4,8 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 
 link() {
-  ln -sf "$ROOT/bin/voicescribe" "$1/voicescribe"
-  echo "linked: $1/voicescribe -> $ROOT/bin/voicescribe"
+  ln -sf "$ROOT/bin/transcript" "$1/transcript"
+  echo "linked: $1/transcript -> $ROOT/bin/transcript"
 }
 
 for dir in /opt/homebrew/bin /usr/local/bin "$HOME/bin"

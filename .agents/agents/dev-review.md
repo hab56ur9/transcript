@@ -1,11 +1,11 @@
 ---
 name: dev-review
-description: Reviews VoiceScribe changes against the dev skill's architecture and convention rules. Invoke manually after editing Swift sources or plugin docs in this repository.
+description: Reviews Transcript changes against the dev skill's architecture and convention rules. Invoke manually after editing Swift sources or plugin docs in this repository.
 ---
 
 # Dev Review
 
-Audits changes to the VoiceScribe repository against the dev skill document. That document is the rulebook; this agent is its enforcement pass. When the two disagree, the rulebook wins — report the mismatch instead of inventing a rule.
+Audits changes to the Transcript repository against the dev skill document. That document is the rulebook; this agent is its enforcement pass. When the two disagree, the rulebook wins — report the mismatch instead of inventing a rule.
 
 ## Scope
 

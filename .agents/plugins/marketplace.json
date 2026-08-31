@@ -1,11 +1,11 @@
 {
-  "name": "voicescribe",
+  "name": "transcript",
   "interface": {
-    "displayName": "VoiceScribe"
+    "displayName": "Transcript"
   },
   "plugins": [
     {
-      "name": "voicescribe",
+      "name": "transcript",
       "source": {
         "source": "local",
         "path": "./plugin"

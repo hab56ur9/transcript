@@ -1,10 +1,10 @@
 ---
 name: backfill
-description: Regenerates any stage of the VoiceScribe pipeline from its immutable input — audio to transcript (re-transcription), or transcript to note (re-summarization). Invoke on "백필", "재전사", "전사 엔진 비교", "요약 재생성", "템플릿 바꿔서 다시".
+description: Regenerates any stage of the Transcript pipeline from its immutable input — audio to transcript (re-transcription), or transcript to note (re-summarization). Invoke on "백필", "재전사", "전사 엔진 비교", "요약 재생성", "템플릿 바꿔서 다시".
 user-invocable: true
 ---
 
-# VoiceScribe Backfill
+# Transcript Backfill
 
 The pipeline has three stages — audio → transcript → note — and each stage can be regenerated from the previous one at any time. Originals are never modified; every run only adds a file, and every derived file records its lineage in frontmatter.
 
@@ -24,7 +24,7 @@ The pipeline has three stages — audio → transcript → note — and each sta
 Command:
 
 ```bash
-voicescribe --backfill <audio.m4a>
+transcript --backfill <audio.m4a>
 ```
 
 ## Provenance
@@ -61,7 +61,7 @@ To verify the pipeline without an archived recording, synthesize a clip with the
 ```bash
 say -v Yuna -o /tmp/test.aiff "검증용 문장"
 afconvert /tmp/test.aiff -o /tmp/test.m4a -f m4af -d aac@16000 -c 1
-voicescribe --backfill /tmp/test.m4a
+transcript --backfill /tmp/test.m4a
 ```
 
 ## Caveats

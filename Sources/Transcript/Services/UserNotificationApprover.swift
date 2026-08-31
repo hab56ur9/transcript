@@ -21,9 +21,9 @@ final class UserNotificationApprover: NSObject {
     }
 
     private func registerCategory(in center: UNUserNotificationCenter) {
-        let start = UNNotificationAction(identifier: "voicescribe.start", title: "녹음 시작")
+        let start = UNNotificationAction(identifier: "transcript.start", title: "녹음 시작")
         let category = UNNotificationCategory(
-            identifier: "voicescribe.approval",
+            identifier: "transcript.approval",
             actions: [start],
             intentIdentifiers: [],
             options: [.customDismissAction]
@@ -35,7 +35,7 @@ final class UserNotificationApprover: NSObject {
         let content = UNMutableNotificationContent()
         content.title = "녹음 승인 요청"
         content.body = "전사 녹음 시작 요청이 도착했습니다. 시작하려면 눌러주세요."
-        content.categoryIdentifier = "voicescribe.approval"
+        content.categoryIdentifier = "transcript.approval"
         content.sound = .default
         return UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
     }

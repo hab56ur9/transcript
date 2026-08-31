@@ -19,7 +19,7 @@ struct FileStateStore: StateReporter {
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support")
         return support
-            .appendingPathComponent("VoiceScribe")
+            .appendingPathComponent("Transcript")
             .appendingPathComponent("state.json")
     }
 

@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import VoiceScribe
+@testable import Transcript
 
 final class FakeAudioSource: AudioSource {
     var onSamples: (([Float]) -> Void)?
@@ -61,7 +61,7 @@ final class FakeSpeakerIdentifying: SpeakerIdentifying {
 }
 
 final class FakeTranscriptWriter: TranscriptWriter {
-    let url = URL(fileURLWithPath: "/tmp/voicescribe-test.md")
+    let url = URL(fileURLWithPath: "/tmp/transcript-test.md")
     private(set) var appended: [String] = []
     private(set) var finalized = false
     private(set) var discarded = false

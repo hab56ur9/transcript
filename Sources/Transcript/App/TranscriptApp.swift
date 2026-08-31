@@ -34,7 +34,7 @@ struct NullStateReporter: StateReporter {
 }
 
 @main
-struct VoiceScribeApp: App {
+struct TranscriptApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
@@ -43,7 +43,7 @@ struct VoiceScribeApp: App {
         } label: {
             MenuBarIcon()
         }
-        Window("VoiceScribe", id: "transcript") {
+        Window("Transcript", id: "transcript") {
             TranscriptView()
         }
         .defaultSize(width: 480, height: 380)
@@ -71,7 +71,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func runBackfillIfRequested() -> Bool {
         guard let flagIndex = CommandLine.arguments.firstIndex(of: "--backfill") else { return false }
         guard CommandLine.arguments.indices.contains(flagIndex + 1) else {
-            print("usage: voicescribe --backfill <audio.m4a>")
+            print("usage: transcript --backfill <audio.m4a>")
             NSApp.terminate(nil)
             return true
         }

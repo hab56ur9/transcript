@@ -5,13 +5,13 @@ final class SystemAudioCapture: NSObject, SCStreamOutput, SCStreamDelegate, Audi
     var onSamples: (([Float]) -> Void)?
 
     private var stream: SCStream?
-    private let sampleQueue = DispatchQueue(label: "voicescribe.systemaudio")
+    private let sampleQueue = DispatchQueue(label: "transcript.systemaudio")
 
     func start() async throws {
         let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
         guard let display = content.displays.first else {
             throw NSError(
-                domain: "VoiceScribe",
+                domain: "Transcript",
                 code: 1,
                 userInfo: [NSLocalizedDescriptionKey: "no display available"]
             )

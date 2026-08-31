@@ -1,11 +1,11 @@
 ---
 name: meeting-note
-description: Generates a structured meeting note from a VoiceScribe transcript. Invoke manually on "미팅 노트 만들어줘", "회의록 정리", or "전사 요약". Falls back to the latest transcript when no target is given.
+description: Generates a structured meeting note from a Transcript transcript. Invoke manually on "미팅 노트 만들어줘", "회의록 정리", or "전사 요약". Falls back to the latest transcript when no target is given.
 ---
 
 # Meeting Note Generator
 
-Turns a VoiceScribe transcript into a structured meeting note, written in the transcript's language.
+Turns a Transcript transcript into a structured meeting note, written in the transcript's language.
 
 ## Selecting the Target
 
@@ -16,7 +16,7 @@ Turns a VoiceScribe transcript into a structured meeting note, written in the tr
 Selection command:
 
 ```bash
-ls -t ~/Documents/VoiceScribe/*.md | grep -v '\.meeting-note\.md' | xargs grep -L '^source_audio:' | head -1
+ls -t ~/Documents/Transcript/*.md | grep -v '\.meeting-note\.md' | xargs grep -L '^source_audio:' | head -1
 ```
 
 ## Note Structure
@@ -54,7 +54,7 @@ ${CLAUDE_PLUGIN_ROOT}/templates/meeting-note.md
 Naming example:
 
 ```bash
-~/Documents/VoiceScribe/2026-08-30-184038.md
-~/Documents/VoiceScribe/2026-08-30-184038.memo.md
-~/Documents/VoiceScribe/2026-08-30-184038.meeting-note.md
+~/Documents/Transcript/2026-08-30-184038.md
+~/Documents/Transcript/2026-08-30-184038.memo.md
+~/Documents/Transcript/2026-08-30-184038.meeting-note.md
 ```

@@ -1,11 +1,11 @@
 ---
 name: lecture-note
-description: Generates structured lecture notes from a VoiceScribe transcript. Invoke manually on "강의 정리", "강의 노트 만들어줘", or "lecture note". Falls back to the latest transcript when no target is given.
+description: Generates structured lecture notes from a Transcript transcript. Invoke manually on "강의 정리", "강의 노트 만들어줘", or "lecture note". Falls back to the latest transcript when no target is given.
 ---
 
 # Lecture Note Generator
 
-Turns a VoiceScribe transcript of a lecture into study-ready notes, written in the transcript's language. Optimized for review: the note must let the user re-learn and self-test without replaying the lecture.
+Turns a Transcript transcript of a lecture into study-ready notes, written in the transcript's language. Optimized for review: the note must let the user re-learn and self-test without replaying the lecture.
 
 ## Selecting the Target
 
@@ -16,7 +16,7 @@ Turns a VoiceScribe transcript of a lecture into study-ready notes, written in t
 Selection command:
 
 ```bash
-ls -t ~/Documents/VoiceScribe/*.md | grep -v '\.\(meeting\|lecture\)-note' | xargs grep -L '^source_audio:' | head -1
+ls -t ~/Documents/Transcript/*.md | grep -v '\.\(meeting\|lecture\)-note' | xargs grep -L '^source_audio:' | head -1
 ```
 
 ## Writing the Note
@@ -54,6 +54,6 @@ ${CLAUDE_PLUGIN_ROOT}/templates/lecture-note.md
 Naming example:
 
 ```bash
-~/Documents/VoiceScribe/2026-09-02-190010.md
-~/Documents/VoiceScribe/2026-09-02-190010.lecture-note.md
+~/Documents/Transcript/2026-09-02-190010.md
+~/Documents/Transcript/2026-09-02-190010.lecture-note.md
 ```

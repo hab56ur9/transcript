@@ -1,4 +1,4 @@
-# VoiceScribe Plugin
+# Transcript Plugin
 
 The distributable part of this repository — what Claude Code and Codex install. Everything needed to operate the app by conversation, none of the app's source.
 

@@ -20,7 +20,7 @@ Release procedure for any change here:
 ```bash
 plugin/.claude-plugin/plugin.json
 plugin/.codex-plugin/plugin.json
-claude plugin update --scope local voicescribe@voicescribe
+claude plugin update --scope local transcript@transcript
 ```
 
 Bump the version in both manifests to the same value, then run the update command.

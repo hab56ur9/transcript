@@ -6,7 +6,7 @@ final class FileAudioSource: AudioSource, @unchecked Sendable {
     var onFinished: (() -> Void)?
 
     private let url: URL
-    private let readQueue = DispatchQueue(label: "voicescribe.filesource")
+    private let readQueue = DispatchQueue(label: "transcript.filesource")
     private var stopped = false
 
     init(url: URL) {

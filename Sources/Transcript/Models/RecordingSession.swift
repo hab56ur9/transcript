@@ -25,7 +25,7 @@ final class RecordingSession {
     @ObservationIgnored private let state: StateReporter
     @ObservationIgnored private let settings: SettingsStoring
 
-    @ObservationIgnored nonisolated private let audioQueue = DispatchQueue(label: "voicescribe.chunking")
+    @ObservationIgnored nonisolated private let audioQueue = DispatchQueue(label: "transcript.chunking")
     @ObservationIgnored nonisolated(unsafe) private var splitters: [ChunkSplitter] = []
     @ObservationIgnored private var sessionURL: URL?
     @ObservationIgnored private var utteranceCount = 0

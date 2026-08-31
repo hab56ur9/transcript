@@ -2,12 +2,12 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
-BIN="$ROOT/.build/release/VoiceScribe"
-APP="$HOME/Applications/VoiceScribe.app"
-APP_BIN="$APP/Contents/MacOS/VoiceScribe"
-BUNDLE_ID="com.nathan.voicescribe"
-PROC_PATTERN="VoiceScribe.app/Contents/MacOS/VoiceScribe"
-STATE="$HOME/Library/Application Support/VoiceScribe/state.json"
+BIN="$ROOT/.build/release/Transcript"
+APP="$HOME/Applications/Transcript.app"
+APP_BIN="$APP/Contents/MacOS/Transcript"
+BUNDLE_ID="com.nathan.transcript"
+PROC_PATTERN="Transcript.app/Contents/MacOS/Transcript"
+STATE="$HOME/Library/Application Support/Transcript/state.json"
 
 recording_active() {
   grep -qE '"status":"(recording|paused)"' "$STATE" 2>/dev/null
@@ -39,7 +39,7 @@ if ! is_backfill "$@"
 then
   if pgrep -f "$PROC_PATTERN" > /dev/null
   then
-    echo "VoiceScribe is already running. To start recording, send: pkill -USR1 -f VoiceScribe"
+    echo "Transcript is already running. To start recording, send: pkill -USR1 -f Transcript"
     exit 1
   fi
 fi
@@ -75,17 +75,17 @@ assemble() {
 <plist version="1.0">
 <dict>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
-  <key>CFBundleExecutable</key><string>VoiceScribe</string>
+  <key>CFBundleExecutable</key><string>Transcript</string>
   <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
-  <key>CFBundleName</key><string>VoiceScribe</string>
+  <key>CFBundleName</key><string>Transcript</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>1.0</string>
   <key>CFBundleVersion</key><string>1</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
-  <key>NSMicrophoneUsageDescription</key><string>VoiceScribe records the microphone to transcribe meetings in real time.</string>
-  <key>NSAudioCaptureUsageDescription</key><string>VoiceScribe captures system audio to transcribe remote meeting participants.</string>
+  <key>NSMicrophoneUsageDescription</key><string>Transcript records the microphone to transcribe meetings in real time.</string>
+  <key>NSAudioCaptureUsageDescription</key><string>Transcript captures system audio to transcribe remote meeting participants.</string>
 </dict>
 </plist>
 PLIST
@@ -93,7 +93,7 @@ PLIST
 }
 
 if needs_build; then
-  echo "VoiceScribe 빌드 중 (release)..."
+  echo "Transcript 빌드 중 (release)..."
   swift build -c release --package-path "$ROOT"
 fi
 
