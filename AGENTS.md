@@ -8,6 +8,8 @@ Local realtime meeting transcriber for macOS (menu bar app). This file routes co
 - Re-transcribing archived audio and comparing engines: plugin/skills/backfill/SKILL.md
 - Generating meeting notes from transcripts: plugin/agents/meeting-note.md, with the format fixed by plugin/templates/meeting-note.md
 
+Release convention: squash-merge PR titles follow Conventional Commits (feat:, fix:, chore:). release-please reads those titles, keeps a release PR open with the next version and changelog, and merging that release PR is the whole release procedure — the workflow then builds the app on a macOS runner and attaches Transcript.app.zip. Versions live in version.txt and both plugin manifests; the bot owns every version edit.
+
 Development: the coding rulebook and the diff-review agent are repo-local, and each major directory carries its own README (human) and AGENTS.md (agent) pair.
 
 ```bash

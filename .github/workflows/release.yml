@@ -4,8 +4,26 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  release:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: rp
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build-upload:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
     runs-on: macos-15
     permissions:
       contents: write
@@ -14,37 +32,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - id: version
-        run: echo "tag=v$(python3 -c "import json; print(json.load(open('plugin/.claude-plugin/plugin.json'))['version'])")" >> "$GITHUB_OUTPUT"
+      - run: swift test
 
-      - id: existing
-        run: |
-          skip=false
-          if gh release view "${{ steps.version.outputs.tag }}" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1
-          then
-            skip=true
-          fi
-          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+      - run: swift build -c release
 
-      - if: steps.existing.outputs.skip == 'false'
-        run: swift test
-
-      - if: steps.existing.outputs.skip == 'false'
-        run: swift build -c release
-
-      - if: steps.existing.outputs.skip == 'false'
-        run: |
+      - run: |
           source bin/bundle-lib.sh
           mkdir -p .build/dist
           assemble_app "$PWD/.build/dist/Transcript.app" "com.nathan.transcript" "Transcript" "$PWD"
           ditto -ck --keepParent .build/dist/Transcript.app .build/dist/Transcript.app.zip
 
-      - if: steps.existing.outputs.skip == 'false'
-        run: |
-          tag="${{ steps.version.outputs.tag }}"
-          prerelease=""
-          if printf '%s' "$tag" | grep -q -- "-"
-          then
-            prerelease="--prerelease"
-          fi
-          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --title "$tag" --generate-notes $prerelease .build/dist/Transcript.app.zip
+      - run: gh release upload "${{ needs.release-please.outputs.tag_name }}" --repo "$GITHUB_REPOSITORY" .build/dist/Transcript.app.zip

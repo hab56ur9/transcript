@@ -29,7 +29,9 @@ claude plugin install transcript@agents-plugins
 
 ## Develop
 
-Clone this repository and allow its `.envrc` (direnv): inside the checkout, `transcript` then resolves to `bin/transcript`, which builds the local sources and launches a dev bundle (TranscriptDev.app) whose permissions stay separate from the installed app. `bin/release` publishes a new release.
+Clone this repository and allow its `.envrc` (direnv): inside the checkout, `transcript` then resolves to `bin/transcript`, which builds the local sources and launches a dev bundle (TranscriptDev.app) whose permissions stay separate from the installed app.
+
+Releases are automated with release-please: PR titles follow Conventional Commits (`feat:`, `fix:`, `chore:`), the bot keeps a release PR open with the next version and changelog, and merging that PR publishes the GitHub release with the built app attached.
 
 ## Use
 
