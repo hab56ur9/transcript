@@ -5,7 +5,7 @@ enum AppComposition {
     @MainActor static let session = RecordingSession(
         microphone: ArchivingAudioSource(wrapping: PausableAudioSource(wrapping: MicCapture()), suffix: "mic"),
         auxiliarySources: [ArchivingAudioSource(wrapping: PausableAudioSource(wrapping: SystemAudioCapture()), suffix: "aux1")],
-        speechToText: WhisperKitEngine(),
+        speechToText: HallucinationFilter(wrapping: WhisperKitEngine()),
         speakerIdentifier: FluidAudioLabeler(),
         writer: FileTranscriptStore(engineTag: WhisperKitEngine.modelTag),
         state: FileStateStore(),
@@ -16,7 +16,7 @@ enum AppComposition {
         RecordingSession(
             microphone: source,
             auxiliarySources: [],
-            speechToText: WhisperKitEngine(),
+            speechToText: HallucinationFilter(wrapping: WhisperKitEngine()),
             speakerIdentifier: FluidAudioLabeler(),
             writer: FileTranscriptStore(engineTag: WhisperKitEngine.modelTag, sourceAudio: audioName),
             state: NullStateReporter(),
