@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: macos-15
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: version
+        run: echo "tag=v$(python3 -c "import json; print(json.load(open('plugin/.claude-plugin/plugin.json'))['version'])")" >> "$GITHUB_OUTPUT"
+
+      - id: existing
+        run: |
+          skip=false
+          if gh release view "${{ steps.version.outputs.tag }}" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1
+          then
+            skip=true
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
+      - if: steps.existing.outputs.skip == 'false'
+        run: swift test
+
+      - if: steps.existing.outputs.skip == 'false'
+        run: swift build -c release
+
+      - if: steps.existing.outputs.skip == 'false'
+        run: |
+          source bin/bundle-lib.sh
+          mkdir -p .build/dist
+          assemble_app "$PWD/.build/dist/Transcript.app" "com.nathan.transcript" "Transcript" "$PWD"
+          ditto -ck --keepParent .build/dist/Transcript.app .build/dist/Transcript.app.zip
+
+      - if: steps.existing.outputs.skip == 'false'
+        run: |
+          tag="${{ steps.version.outputs.tag }}"
+          prerelease=""
+          if printf '%s' "$tag" | grep -q -- "-"
+          then
+            prerelease="--prerelease"
+          fi
+          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --title "$tag" --generate-notes $prerelease .build/dist/Transcript.app.zip

@@ -49,7 +49,7 @@ swift build -c release
 
 - Skill and agent documents: English body, each section under 1,000 characters, prose that reads aloud without code — copy-runnable content goes in a block at the end of the section.
 - Any change under the plugin directory: bump the version in both manifests, merge to main, then refresh the installed plugin — installs come from the agents-plugins marketplace (github source), so the update pulls from the pushed main.
-- App release: bump the version in both manifests, merge to main, then run the release script — it tests, builds, assembles Transcript.app with the icon, zips, and publishes a GitHub release (marked prerelease when the version carries a suffix). install.sh and `transcript --install` pull the newest release.
+- App release: bump the version in both manifests and merge to main — the release workflow builds on a GitHub runner (tests, bundle with icon, zip) and publishes a release for the manifest version when its tag is absent, marked prerelease when the version carries a suffix. install.sh and `transcript --install` pull the newest release. bin/release stays as a local fallback.
 - The stable app is ad-hoc signed, so each release update invalidates prior TCC grants; users re-approve once per update. Dev builds use the separate com.nathan.transcript.dev identity and leave the stable grants alone.
 
 Files and commands:
@@ -58,5 +58,6 @@ Files and commands:
 plugin/.claude-plugin/plugin.json
 plugin/.codex-plugin/plugin.json
 claude plugin update transcript@agents-plugins
+.github/workflows/release.yml
 bin/release
 ```
