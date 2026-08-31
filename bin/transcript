@@ -23,6 +23,31 @@ recording_active() {
   grep -qE '"status":"(recording|paused)"' "$STATE" 2>/dev/null
 }
 
+running_pattern() {
+  if pgrep -f "$STABLE_PATTERN" > /dev/null
+  then
+    echo "$STABLE_PATTERN"
+    return 0
+  fi
+  if pgrep -f "$DEV_PATTERN" > /dev/null
+  then
+    echo "$DEV_PATTERN"
+    return 0
+  fi
+  return 1
+}
+
+signal_running() {
+  local sig="$1" pattern
+  if ! pattern="$(running_pattern)"
+  then
+    echo "실행 중인 Transcript가 없습니다."
+    exit 1
+  fi
+  pkill "-$sig" -f "$pattern"
+  exit 0
+}
+
 watch_mode() {
   for _ in $(seq 1 150)
   do
@@ -68,18 +93,27 @@ is_backfill() {
   printf '%s\n' "$@" | grep -q -- "--backfill"
 }
 
+is_record() {
+  printf '%s\n' "$@" | grep -q -- "--record"
+}
+
 launch() {
   local app="$1" pattern="$2" other="$3"
   shift 3
   if pgrep -f "$other" > /dev/null
   then
-    echo "다른 트랙의 Transcript가 실행 중입니다. 상태 파일이 충돌하니 먼저 종료해주세요: pkill -TERM -f \"$other\""
+    echo "다른 트랙의 Transcript가 실행 중입니다. 상태 파일이 충돌하니 먼저 종료해주세요: transcript quit"
     exit 1
   fi
   if pgrep -f "$pattern" > /dev/null
   then
-    echo "Transcript is already running. To start recording, send: pkill -USR1 -f \"$pattern\""
-    exit 1
+    if is_record "$@"
+    then
+      pkill -USR1 -f "$pattern"
+      exit 0
+    fi
+    echo "Transcript이 이미 실행 중입니다."
+    exit 0
   fi
   if [ $# -gt 0 ]
   then
@@ -128,6 +162,25 @@ migrate_legacy
 if [ "${1:-}" = "--watch" ]
 then
   watch_mode
+fi
+
+if [ "${1:-}" = "start" ]
+then
+  if running_pattern > /dev/null
+  then
+    signal_running USR1
+  fi
+  set -- --record
+fi
+
+if [ "${1:-}" = "stop" ]
+then
+  signal_running USR2
+fi
+
+if [ "${1:-}" = "quit" ]
+then
+  signal_running TERM
 fi
 
 update_cli() {
