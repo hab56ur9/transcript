@@ -20,11 +20,11 @@ App and CLI, from the latest GitHub release:
 curl -fsSL https://raw.githubusercontent.com/hab56ur9/transcript/main/install.sh | bash
 ```
 
-Agent skills, as a Claude Code / Codex plugin:
+Agent skills, as a Claude Code / Codex plugin from the agents-plugins marketplace:
 
 ```bash
-claude plugin marketplace add hab56ur9/transcript
-claude plugin install transcript@transcript
+claude plugin marketplace add hab56ur9/agents-plugins
+claude plugin install transcript@agents-plugins
 ```
 
 ## Develop
