@@ -7,6 +7,7 @@ Local realtime meeting transcriber for macOS (menu bar app). This file routes co
 - Codex: skills install via the plugin marketplace (this repository ships both Claude and Codex manifests); the app installs through the same install.sh.
 - Re-transcribing archived audio and comparing engines: plugin/skills/backfill/SKILL.md
 - Generating meeting notes from transcripts: plugin/agents/meeting-note.md, with the format fixed by plugin/templates/meeting-note.md
+- Generating development documents from design-discussion transcripts: plugin/agents/dev-doc.md, with the format fixed by plugin/templates/dev-doc.md
 
 Release convention: squash-merge PR titles follow Conventional Commits (feat:, fix:, chore:). release-please reads those titles, keeps a release PR open with the next version and changelog, and merging that release PR is the whole release procedure — the workflow then builds the app on a macOS runner and attaches Transcript.app.zip. Versions live in version.txt and both plugin manifests; the bot owns every version edit.
 
