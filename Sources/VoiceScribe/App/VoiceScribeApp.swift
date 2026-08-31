@@ -55,6 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var signalSources: [DispatchSourceSignal] = []
     private var backfillSession: RecordingSession?
     private var backfillSource: FileAudioSource?
+    private let approver = UserNotificationApprover()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -63,7 +64,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         FileStateStore().idle()
         AppComposition.session.preloadEngines()
         if CommandLine.arguments.contains("--record") {
-            Task { await AppComposition.session.start() }
+            requestSessionStart()
         }
     }
 
@@ -95,12 +96,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard AppComposition.session.isBusy else { return .terminateNow }
-        guard terminateRequested == false else { return .terminateLater }
+        guard terminateRequested == false else { return .terminateCancel }
         terminateRequested = true
         AppComposition.session.stop {
-            NSApp.reply(toApplicationShouldTerminate: true)
+            NSApp.terminate(nil)
         }
-        return .terminateLater
+        return .terminateCancel
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -119,9 +120,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func requestSessionStart() {
+        guard FileSettingsStore().loadConfirmRecording() ?? true else {
+            Task { await AppComposition.session.start() }
+            return
+        }
+        Task {
+            guard await approver.requestApproval() else { return }
+            await AppComposition.session.start()
+        }
+    }
+
     private func handleSignal(_ sig: Int32) {
         if sig == SIGUSR1 {
-            Task { await AppComposition.session.start() }
+            requestSessionStart()
             return
         }
         if sig == SIGUSR2 {

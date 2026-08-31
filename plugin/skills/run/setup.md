@@ -18,9 +18,11 @@ voicescribe
 
 ## First Run
 
+- The launcher assembles VoiceScribe.app under the user Applications folder and opens it, so every permission attaches to the app bundle itself — the launch host is irrelevant.
 - The transcription model (about 1.6GB) downloads once on first use; queued chunks catch up afterward.
 - The speaker-diarization model downloads once on first use as well.
 - The microphone permission prompt appears on first recording.
-- System audio (remote voices) needs the screen recording permission for the hosting terminal; the app runs mic-only until granted.
+- The notification permission prompt appears on the first signal-driven recording request; approving it enables the ask-before-recording flow.
+- System audio (remote voices) needs the screen recording permission for VoiceScribe.app; the app runs mic-only until granted.
 - Writing into the Documents folder may prompt a files-and-folders permission once.
-- Run once from the user's terminal to seed all permissions.
+- The bundle is ad-hoc signed, so a rebuild produces a new signature and macOS asks for the permissions again on the next recording.

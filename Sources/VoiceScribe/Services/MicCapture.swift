@@ -14,11 +14,6 @@ final class MicCapture: AudioSource {
 
     func start() throws {
         let input = engine.inputNode
-        try? input.setVoiceProcessingEnabled(true)
-        input.voiceProcessingOtherAudioDuckingConfiguration = AVAudioVoiceProcessingOtherAudioDuckingConfiguration(
-            enableAdvancedDucking: false,
-            duckingLevel: .min
-        )
         let inputFormat = input.outputFormat(forBus: 0)
         converter = AVAudioConverter(from: inputFormat, to: targetFormat)
         input.installTap(onBus: 0, bufferSize: 4_096, format: inputFormat) { [weak self] buffer, _ in

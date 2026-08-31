@@ -4,10 +4,12 @@ struct FileSettingsStore: SettingsStoring {
     private struct Settings: Codable {
         var language: String?
         var saveAudio: Bool?
+        var confirmRecording: Bool?
 
         enum CodingKeys: String, CodingKey {
             case language
             case saveAudio = "save_audio"
+            case confirmRecording = "confirm_recording"
         }
     }
 
@@ -27,6 +29,10 @@ struct FileSettingsStore: SettingsStoring {
         read()?.saveAudio
     }
 
+    func loadConfirmRecording() -> Bool? {
+        read()?.confirmRecording
+    }
+
     func save(language: String) {
         update { $0.language = language }
     }
@@ -35,13 +41,17 @@ struct FileSettingsStore: SettingsStoring {
         update { $0.saveAudio = saveAudio }
     }
 
+    func save(confirmRecording: Bool) {
+        update { $0.confirmRecording = confirmRecording }
+    }
+
     private func read() -> Settings? {
         guard let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(Settings.self, from: data)
     }
 
     private func update(_ mutate: (inout Settings) -> Void) {
-        var settings = read() ?? Settings(language: nil, saveAudio: nil)
+        var settings = read() ?? Settings(language: nil, saveAudio: nil, confirmRecording: nil)
         mutate(&settings)
         try? FileManager.default.createDirectory(
             at: url.deletingLastPathComponent(),

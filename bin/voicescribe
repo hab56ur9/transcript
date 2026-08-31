@@ -3,28 +3,41 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 BIN="$ROOT/.build/release/VoiceScribe"
+APP="$HOME/Applications/VoiceScribe.app"
+APP_BIN="$APP/Contents/MacOS/VoiceScribe"
+BUNDLE_ID="com.nathan.voicescribe"
+PROC_PATTERN="VoiceScribe.app/Contents/MacOS/VoiceScribe"
+STATE="$HOME/Library/Application Support/VoiceScribe/state.json"
+
+recording_active() {
+  grep -qE '"status":"(recording|paused)"' "$STATE" 2>/dev/null
+}
 
 if [ "${1:-}" = "--watch" ]
 then
-  STATE="$HOME/Library/Application Support/VoiceScribe/state.json"
-  while true
+  for _ in $(seq 1 150)
   do
-    if [ ! -f "$STATE" ]
+    if recording_active
     then
-      exit 0
-    fi
-    if ! grep -qE '"status":"(recording|paused)"' "$STATE"
-    then
-      cat "$STATE"
-      exit 0
+      break
     fi
     sleep 2
   done
+  while recording_active
+  do
+    sleep 2
+  done
+  cat "$STATE" 2>/dev/null || true
+  exit 0
 fi
 
-if ! printf '%s\n' "$@" | grep -q -- "--backfill"
+is_backfill() {
+  printf '%s\n' "$@" | grep -q -- "--backfill"
+}
+
+if ! is_backfill "$@"
 then
-  if pgrep -f ".build/release/VoiceScribe" > /dev/null
+  if pgrep -f "$PROC_PATTERN" > /dev/null
   then
     echo "VoiceScribe is already running. To start recording, send: pkill -USR1 -f VoiceScribe"
     exit 1
@@ -38,9 +51,64 @@ needs_build() {
   [ -n "$(find "$ROOT/Sources" "$ROOT/Package.swift" -newer "$BIN" 2>/dev/null | head -1)" ]
 }
 
+needs_assemble() {
+  if [ ! -x "$APP_BIN" ]; then
+    return 0
+  fi
+  [ "$BIN" -nt "$APP_BIN" ]
+}
+
+assemble() {
+  rm -rf "$APP"
+  mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+  cp "$BIN" "$APP_BIN"
+  for bundle in "$ROOT/.build/release/"*.bundle
+  do
+    if [ -e "$bundle" ]
+    then
+      cp -R "$bundle" "$APP/Contents/Resources/"
+    fi
+  done
+  cat > "$APP/Contents/Info.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleDevelopmentRegion</key><string>en</string>
+  <key>CFBundleExecutable</key><string>VoiceScribe</string>
+  <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
+  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+  <key>CFBundleName</key><string>VoiceScribe</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>LSMinimumSystemVersion</key><string>14.0</string>
+  <key>LSUIElement</key><true/>
+  <key>NSMicrophoneUsageDescription</key><string>VoiceScribe records the microphone to transcribe meetings in real time.</string>
+  <key>NSAudioCaptureUsageDescription</key><string>VoiceScribe captures system audio to transcribe remote meeting participants.</string>
+</dict>
+</plist>
+PLIST
+  codesign --force --sign - --identifier "$BUNDLE_ID" "$APP"
+}
+
 if needs_build; then
   echo "VoiceScribe 빌드 중 (release)..."
   swift build -c release --package-path "$ROOT"
 fi
 
-exec "$BIN" "$@"
+if needs_assemble; then
+  assemble
+fi
+
+if is_backfill "$@"
+then
+  exec "$APP_BIN" "$@"
+fi
+
+if [ $# -gt 0 ]
+then
+  exec open "$APP" --args "$@"
+fi
+
+exec open "$APP"

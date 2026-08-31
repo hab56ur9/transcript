@@ -6,14 +6,8 @@ struct MenuBarIcon: View {
 
     var body: some View {
         let session = AppComposition.session
-        HStack(spacing: 3) {
-            Image(systemName: iconName(for: session))
-                .foregroundStyle(iconColor(for: session))
-            if session.isRecording {
-                Text(session.elapsedText)
-                    .monospacedDigit()
-            }
-        }
+        Image(systemName: iconName(for: session))
+            .foregroundStyle(iconColor(for: session))
         .onAppear {
             guard session.isRecording else { return }
             showTranscript()
@@ -87,6 +81,11 @@ struct MenuView: View {
         Toggle("Save Audio", isOn: Binding(
             get: { FileSettingsStore().loadSaveAudio() ?? true },
             set: { FileSettingsStore().save(saveAudio: $0) }
+        ))
+
+        Toggle("Ask Before Recording", isOn: Binding(
+            get: { FileSettingsStore().loadConfirmRecording() ?? true },
+            set: { FileSettingsStore().save(confirmRecording: $0) }
         ))
 
         Divider()
