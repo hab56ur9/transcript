@@ -24,7 +24,7 @@ settings    ~/Library/Application Support/Transcript/settings.json
 ## Quick Start
 
 - New machine, or the launcher command is missing → follow [setup.md](setup.md) once.
-- Launch with the single launcher command. The installed copy opens the installed release app, installing the newest GitHub release first when missing; `transcript --install` updates it explicitly.
+- Launch with the single launcher command. The installed copy opens the installed release app, installing the newest GitHub release first when missing; `transcript update` refreshes both the app and the CLI to the newest release in seconds (`--install` remains an alias).
 - The repo checkout carries its own bin/transcript, which direnv puts first on PATH inside the repo: that copy builds the local sources into TranscriptDev.app (separate bundle identity and permissions) and opens that instead.
 - Dev and stable share the state file, so only one runs at a time — the launcher refuses to start one track while the other is alive.
 - The launcher opens the app bundle via open, so microphone and screen recording permissions attach to the bundle itself — any launch host (terminal, agent, Finder) works the same.
