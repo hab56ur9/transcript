@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+source "$ROOT/bin/bundle-lib.sh"
+
+VERSION="$(app_version "$ROOT")"
+TAG="v$VERSION"
+DIST="$ROOT/.build/dist"
+
+swift test --package-path "$ROOT"
+swift build -c release --package-path "$ROOT"
+
+rm -rf "$DIST"
+mkdir -p "$DIST"
+assemble_app "$DIST/Transcript.app" "com.nathan.transcript" "Transcript" "$ROOT"
+ditto -ck --keepParent "$DIST/Transcript.app" "$DIST/Transcript.app.zip"
+
+PRERELEASE=""
+if printf '%s' "$VERSION" | grep -q -- "-"
+then
+  PRERELEASE="--prerelease"
+fi
+
+gh release create "$TAG" --repo "hab56ur9/transcript" --title "$TAG" --generate-notes $PRERELEASE "$DIST/Transcript.app.zip"
+echo "릴리즈 발행 완료: $TAG"

@@ -14,14 +14,25 @@ audio (.m4a)  →  transcript (.md)  →  note (.meeting-note.md / .lecture-note
 
 ## Install
 
+App and CLI, from the latest GitHub release:
+
 ```bash
-claude plugin marketplace add <this-repo>
-claude plugin install transcript@transcript
-~/.claude/plugins/marketplaces/transcript/bin/install
+curl -fsSL https://raw.githubusercontent.com/hab56ur9/transcript/main/install.sh | bash
 ```
+
+Agent skills, as a Claude Code / Codex plugin:
+
+```bash
+claude plugin marketplace add hab56ur9/transcript
+claude plugin install transcript@transcript
+```
+
+## Develop
+
+Clone this repository and allow its `.envrc` (direnv): inside the checkout, `transcript` then resolves to `bin/transcript`, which builds the local sources and launches a dev bundle (TranscriptDev.app) whose permissions stay separate from the installed app. `bin/release` publishes a new release.
 
 ## Use
 
 Say "전사 모드 시작" to your agent, or use the menu bar icon. Outputs land in Documents/Transcript. Details: plugin/skills/run/SKILL.md.
 
-Requires macOS 14+ and Xcode Command Line Tools.
+Requires macOS 14+. Development additionally needs Xcode Command Line Tools.

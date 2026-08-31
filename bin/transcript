@@ -1,20 +1,29 @@
 #!/bin/bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
-BIN="$ROOT/.build/release/Transcript"
-APP="$HOME/Applications/Transcript.app"
-APP_BIN="$APP/Contents/MacOS/Transcript"
-BUNDLE_ID="com.nathan.transcript"
-PROC_PATTERN="Transcript.app/Contents/MacOS/Transcript"
-STATE="$HOME/Library/Application Support/Transcript/state.json"
+REPO="hab56ur9/transcript"
+STABLE_APP="$HOME/Applications/Transcript.app"
+STABLE_PATTERN="Transcript.app/Contents/MacOS/Transcript"
+DEV_PATTERN="TranscriptDev.app/Contents/MacOS/Transcript"
+SUPPORT="$HOME/Library/Application Support/Transcript"
+STATE="$SUPPORT/state.json"
+
+migrate_legacy() {
+  if [ -d "$HOME/Documents/VoiceScribe" ] && [ ! -e "$HOME/Documents/Transcript" ]
+  then
+    mv "$HOME/Documents/VoiceScribe" "$HOME/Documents/Transcript"
+  fi
+  if [ -d "$HOME/Library/Application Support/VoiceScribe" ] && [ ! -e "$SUPPORT" ]
+  then
+    mv "$HOME/Library/Application Support/VoiceScribe" "$SUPPORT"
+  fi
+}
 
 recording_active() {
   grep -qE '"status":"(recording|paused)"' "$STATE" 2>/dev/null
 }
 
-if [ "${1:-}" = "--watch" ]
-then
+watch_mode() {
   for _ in $(seq 1 150)
   do
     if recording_active
@@ -29,86 +38,109 @@ then
   done
   cat "$STATE" 2>/dev/null || true
   exit 0
-fi
+}
+
+latest_zip_url() {
+  curl -fsSL "https://api.github.com/repos/$REPO/releases" 2>/dev/null |
+    grep -o 'https://[^"]*/Transcript\.app\.zip' | head -1 || true
+}
+
+install_stable() {
+  echo "Transcript 최신 릴리즈 설치 중..."
+  local url tmp
+  url="$(latest_zip_url)"
+  if [ -z "$url" ]
+  then
+    echo "다운로드할 릴리즈를 찾지 못했습니다: https://github.com/$REPO/releases"
+    exit 1
+  fi
+  tmp="$(mktemp -d)"
+  curl -fsSL -o "$tmp/Transcript.app.zip" "$url"
+  mkdir -p "$HOME/Applications"
+  rm -rf "$STABLE_APP"
+  ditto -xk "$tmp/Transcript.app.zip" "$HOME/Applications"
+  xattr -dr com.apple.quarantine "$STABLE_APP" 2>/dev/null || true
+  rm -rf "$tmp"
+  echo "설치됨: $STABLE_APP"
+}
 
 is_backfill() {
   printf '%s\n' "$@" | grep -q -- "--backfill"
 }
 
-if ! is_backfill "$@"
-then
-  if pgrep -f "$PROC_PATTERN" > /dev/null
+launch() {
+  local app="$1" pattern="$2" other="$3"
+  shift 3
+  if pgrep -f "$other" > /dev/null
   then
-    echo "Transcript is already running. To start recording, send: pkill -USR1 -f Transcript"
+    echo "다른 트랙의 Transcript가 실행 중입니다. 상태 파일이 충돌하니 먼저 종료해주세요: pkill -TERM -f \"$other\""
     exit 1
   fi
-fi
-
-needs_build() {
-  if [ ! -x "$BIN" ]; then
-    return 0
+  if pgrep -f "$pattern" > /dev/null
+  then
+    echo "Transcript is already running. To start recording, send: pkill -USR1 -f \"$pattern\""
+    exit 1
   fi
-  [ -n "$(find "$ROOT/Sources" "$ROOT/Package.swift" -newer "$BIN" 2>/dev/null | head -1)" ]
-}
-
-needs_assemble() {
-  if [ ! -x "$APP_BIN" ]; then
-    return 0
+  if [ $# -gt 0 ]
+  then
+    exec open "$app" --args "$@"
   fi
-  [ "$BIN" -nt "$APP_BIN" ]
+  exec open "$app"
 }
 
-assemble() {
-  rm -rf "$APP"
-  mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-  cp "$BIN" "$APP_BIN"
-  for bundle in "$ROOT/.build/release/"*.bundle
-  do
-    if [ -e "$bundle" ]
-    then
-      cp -R "$bundle" "$APP/Contents/Resources/"
-    fi
-  done
-  cat > "$APP/Contents/Info.plist" <<PLIST
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>CFBundleDevelopmentRegion</key><string>en</string>
-  <key>CFBundleExecutable</key><string>Transcript</string>
-  <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
-  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
-  <key>CFBundleName</key><string>Transcript</string>
-  <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>1.0</string>
-  <key>CFBundleVersion</key><string>1</string>
-  <key>LSMinimumSystemVersion</key><string>14.0</string>
-  <key>LSUIElement</key><true/>
-  <key>NSMicrophoneUsageDescription</key><string>Transcript records the microphone to transcribe meetings in real time.</string>
-  <key>NSAudioCaptureUsageDescription</key><string>Transcript captures system audio to transcribe remote meeting participants.</string>
-</dict>
-</plist>
-PLIST
-  codesign --force --sign - --identifier "$BUNDLE_ID" "$APP"
+run_dev() {
+  local root="$1"
+  shift
+  source "$root/bin/bundle-lib.sh"
+  local bin="$root/.build/release/Transcript"
+  local app="$root/.build/TranscriptDev.app"
+  local app_bin="$app/Contents/MacOS/Transcript"
+  if [ ! -x "$bin" ] || [ -n "$(find "$root/Sources" "$root/Package.swift" -newer "$bin" 2>/dev/null | head -1)" ]
+  then
+    echo "Transcript 빌드 중 (dev)..."
+    swift build -c release --package-path "$root"
+  fi
+  if [ ! -x "$app_bin" ] || [ "$bin" -nt "$app_bin" ]
+  then
+    assemble_app "$app" "com.nathan.transcript.dev" "TranscriptDev" "$root"
+  fi
+  if is_backfill "$@"
+  then
+    exec "$app_bin" "$@"
+  fi
+  launch "$app" "$DEV_PATTERN" "$STABLE_PATTERN" "$@"
 }
 
-if needs_build; then
-  echo "Transcript 빌드 중 (release)..."
-  swift build -c release --package-path "$ROOT"
-fi
+run_stable() {
+  if [ ! -x "$STABLE_APP/Contents/MacOS/Transcript" ]
+  then
+    install_stable
+  fi
+  if is_backfill "$@"
+  then
+    exec "$STABLE_APP/Contents/MacOS/Transcript" "$@"
+  fi
+  launch "$STABLE_APP" "$STABLE_PATTERN" "$DEV_PATTERN" "$@"
+}
 
-if needs_assemble; then
-  assemble
-fi
+migrate_legacy
 
-if is_backfill "$@"
+if [ "${1:-}" = "--watch" ]
 then
-  exec "$APP_BIN" "$@"
+  watch_mode
 fi
 
-if [ $# -gt 0 ]
+if [ "${1:-}" = "--install" ]
 then
-  exec open "$APP" --args "$@"
+  install_stable
+  exit 0
 fi
 
-exec open "$APP"
+SELF_ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+
+if [ -f "$SELF_ROOT/Package.swift" ] && [ -d "$SELF_ROOT/Sources/Transcript" ]
+then
+  run_dev "$SELF_ROOT" "$@"
+fi
+
+run_stable "$@"

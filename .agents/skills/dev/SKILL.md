@@ -49,11 +49,14 @@ swift build -c release
 
 - Skill and agent documents: English body, each section under 1,000 characters, prose that reads aloud without code — copy-runnable content goes in a block at the end of the section.
 - Any change under the plugin directory: bump the version in both manifests, then refresh the installed plugin.
+- App release: bump the version in both manifests, merge to main, then run the release script — it tests, builds, assembles Transcript.app with the icon, zips, and publishes a GitHub release (marked prerelease when the version carries a suffix). install.sh and `transcript --install` pull the newest release.
+- The stable app is ad-hoc signed, so each release update invalidates prior TCC grants; users re-approve once per update. Dev builds use the separate com.nathan.transcript.dev identity and leave the stable grants alone.
 
-Files and command:
+Files and commands:
 
 ```bash
 plugin/.claude-plugin/plugin.json
 plugin/.codex-plugin/plugin.json
 claude plugin update --scope local transcript@transcript
+bin/release
 ```
