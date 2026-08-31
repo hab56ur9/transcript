@@ -1,0 +1,15 @@
+{
+  "name": "transcript",
+  "description": "Transcript — local realtime meeting transcriber plugin for macOS.",
+  "owner": {
+    "name": "nathan",
+    "email": "hab5bur9@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "transcript",
+      "source": "./plugin",
+      "description": "Run/control skill and meeting-note agent for Transcript. The SwiftPM app itself lives in this repository."
+    }
+  ]
+}

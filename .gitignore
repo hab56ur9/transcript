@@ -1,0 +1,7 @@
+.build/
+.swiftpm/
+*.caf
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.claude/settings.local.json
