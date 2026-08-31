@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0-alpha.5](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.4...v0.28.0-alpha.5) (2026-08-31)
+
+
+### Features
+
+* add transcript update command ([#13](https://github.com/hab56ur9/transcript/issues/13)) ([9dfe8e7](https://github.com/hab56ur9/transcript/commit/9dfe8e70dd45cabdf42f7c1920beba1751074e5d))
+
 ## [0.28.0-alpha.4](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.3...v0.28.0-alpha.4) (2026-08-31)
 
 
