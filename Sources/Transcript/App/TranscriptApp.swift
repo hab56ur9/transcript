@@ -55,7 +55,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var signalSources: [DispatchSourceSignal] = []
     private var backfillSession: RecordingSession?
     private var backfillSource: FileAudioSource?
-    private let approver = UserNotificationApprover()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -125,10 +124,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Task { await AppComposition.session.start() }
             return
         }
-        Task {
-            guard await approver.requestApproval() else { return }
-            await AppComposition.session.start()
-        }
+        guard AlertApprover().requestApproval() else { return }
+        Task { await AppComposition.session.start() }
     }
 
     private func handleSignal(_ sig: Int32) {

@@ -20,7 +20,6 @@ curl -fsSL https://raw.githubusercontent.com/hab56ur9/transcript/main/install.sh
 - The transcription model (about 1.6GB) downloads once on first use; queued chunks catch up afterward.
 - The speaker-diarization model downloads once on first use as well.
 - The microphone permission prompt appears on first recording.
-- The notification permission prompt appears on the first signal-driven recording request; approving it enables the ask-before-recording flow.
 - System audio (remote voices) needs the screen recording permission for Transcript.app; the app runs mic-only until granted.
 - Writing into the Documents folder may prompt a files-and-folders permission once.
 - The bundle is ad-hoc signed, so each release update changes the signature and macOS asks for the permissions again on the next recording.
