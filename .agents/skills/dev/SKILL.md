@@ -48,8 +48,9 @@ swift build -c release
 ## Docs and Release
 
 - Skill and agent documents: English body, each section under 1,000 characters, prose that reads aloud without code — copy-runnable content goes in a block at the end of the section.
-- Any change under the plugin directory: bump the version in both manifests, merge to main, then refresh the installed plugin — installs come from the agents-plugins marketplace (github source), so the update pulls from the pushed main.
-- App release: bump the version in both manifests and merge to main — the release workflow builds on a GitHub runner (tests, bundle with icon, zip) and publishes a release for the manifest version when its tag is absent, marked prerelease when the version carries a suffix. install.sh and `transcript --install` pull the newest release. bin/release stays as a local fallback.
+- Squash-merge PR titles follow Conventional Commits: feat bumps minor, fix bumps patch, chore stays out of the changelog. release-please reads the titles, so a title without a type prefix drops that change from version calculation.
+- Skill or agent document changes ship by merging to main, then refreshing the installed plugin — installs come from the agents-plugins marketplace (github source), which pulls the pushed main. The bot owns the version fields in both manifests and version.txt.
+- App release: merge the release PR that release-please keeps open. The workflow then tests, builds, and bundles on a macOS runner and attaches Transcript.app.zip to the published release (prerelease while the version carries a suffix). install.sh and `transcript --install` pull the newest release. bin/release stays as a local fallback.
 - The stable app is ad-hoc signed, so each release update invalidates prior TCC grants; users re-approve once per update. Dev builds use the separate com.nathan.transcript.dev identity and leave the stable grants alone.
 
 Files and commands:
