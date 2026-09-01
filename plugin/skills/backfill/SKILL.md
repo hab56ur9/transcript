@@ -6,7 +6,7 @@ user-invocable: true
 
 # Transcript Backfill
 
-The pipeline has three stages — audio → transcript → note — and each stage can be regenerated from the previous one at any time. Originals are never modified; every run only adds a file, and every derived file records its lineage in frontmatter.
+The pipeline has three stages — audio → transcript → note — plus an optional correction pass between the last two, and each stage can be regenerated from the previous one at any time. Originals are never modified; every run only adds a file, and every derived file records its lineage in frontmatter.
 
 ## When to Use
 
@@ -38,6 +38,10 @@ engine: openai_whisper-large-v3-v20240930
 source_audio: 2026-08-30-192011.mic.m4a
 ```
 
+## Correction (transcript → corrected transcript)
+
+The correct agent restores domain terms the engine misheard, using the companion memo's background links as a glossary source. The corrected copy lives next to the raw transcript with the corrected suffix, records its input in a source_transcript field, and is what the note agents read when present. Rerun it freely as the glossary improves — a rerun replaces the previous copy. Engine comparisons always use raw transcripts, never corrected ones.
+
 ## Note Regeneration (transcript → note)
 
 Notes are cheap derived views over immutable transcripts — regenerate them freely.
@@ -46,6 +50,7 @@ Notes are cheap derived views over immutable transcripts — regenerate them fre
 - Template experiment: ask the agent to save with a variant tag in the file name instead of overwriting, then compare variants side by side and fold the winner back into the template file.
 - After a template change: list transcripts that already have notes of that kind, and rerun the agent over each. Lineage stays correct because every note records its template and source_transcript.
 - After a transcript-level backfill: if the new transcript wins, regenerate its notes from the winner.
+- After a correction pass: regenerate the transcript's notes so they pick up the corrected sibling.
 
 ## Comparing Versions
 

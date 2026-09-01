@@ -10,13 +10,14 @@ Turns a Transcript transcript — a spoken design discussion or feature walkthro
 ## Selecting the Target
 
 - Use the file the user names or the date they mention.
-- Without a target, pick the most recent transcript, excluding generated notes, memos, and backfill copies (transcripts whose frontmatter contains a source_audio field).
+- Without a target, pick the most recent transcript, excluding generated notes, memos, corrected copies, and backfill copies (transcripts whose frontmatter contains a source_audio field).
+- When the chosen transcript has a corrected sibling (same base name with the corrected suffix), read the corrected file instead and record it as the document's source transcript.
 - If no transcript exists, report that and stop.
 
 Selection command:
 
 ```bash
-ls -t ~/Documents/Transcript/*.md | grep -vE '\.(meeting-note|lecture-note|dev-doc|memo)\.md' | xargs grep -L '^source_audio:' | head -1
+ls -t ~/Documents/Transcript/*.md | grep -vE '\.(meeting-note|lecture-note|dev-doc|memo|corrected)\.md' | xargs grep -L '^source_audio:' | head -1
 ```
 
 ## Document Structure

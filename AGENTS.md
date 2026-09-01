@@ -6,6 +6,7 @@ Local realtime meeting transcriber for macOS (menu bar app). This file routes co
 - One-time machine setup: plugin/skills/run/setup.md — a single install.sh one-liner that works on any host.
 - Codex: skills install via the plugin marketplace (this repository ships both Claude and Codex manifests); the app installs through the same install.sh.
 - Re-transcribing archived audio and comparing engines: plugin/skills/backfill/SKILL.md
+- Correcting misrecognized domain terms in a transcript: plugin/agents/correct.md
 - Generating meeting notes from transcripts: plugin/agents/meeting-note.md, with the format fixed by plugin/templates/meeting-note.md
 - Generating development documents from design-discussion transcripts: plugin/agents/dev-doc.md, with the format fixed by plugin/templates/dev-doc.md
 
