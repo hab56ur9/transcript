@@ -10,13 +10,14 @@ Turns a Transcript transcript into a structured meeting note, written in the tra
 ## Selecting the Target
 
 - Use the file the user names or the date they mention.
-- Without a target, pick the most recent transcript, excluding generated notes and backfill copies (transcripts whose frontmatter contains a source_audio field).
+- Without a target, pick the most recent transcript, excluding generated notes, memos, corrected copies, and backfill copies (transcripts whose frontmatter contains a source_audio field).
+- When the chosen transcript has a corrected sibling (same base name with the corrected suffix), read the corrected file instead and record it as the note's source transcript.
 - If no transcript exists, report that and stop.
 
 Selection command:
 
 ```bash
-ls -t ~/Documents/Transcript/*.md | grep -v '\.meeting-note\.md' | xargs grep -L '^source_audio:' | head -1
+ls -t ~/Documents/Transcript/*.md | grep -vE '\.(meeting-note|memo|corrected)\.md' | xargs grep -L '^source_audio:' | head -1
 ```
 
 ## Note Structure
@@ -25,9 +26,9 @@ Start from the template file, keep its section order, and replace every braced p
 
 Section rules on top of the template:
 
-- Header: infer the title from the discussion, take the date from the file name, list attendees as speaker labels. Map labels to real names only when the user provides the mapping.
+- Header: infer the title from the discussion, take the date from the file name.
 - Discussion: three to five topic sections following the flow of the conversation.
-- Decisions: agreed items only. When agreement is ambiguous in the transcript, the item belongs in Open Questions, not Decisions.
+- Decisions: agreed items only, marked by an explicit closing exchange in the transcript. A proposal, a working premise, or one person agreeing with themselves is not a decision — those stay in Discussion. When agreement is ambiguous, the item belongs in Open Questions, not Decisions.
 - Action items: spoken commitments only — someone said they will do it, or it was explicitly assigned. Ideas, possibilities, and attendance at already-scheduled meetings are not action items; when in doubt, keep it in Discussion.
 - My notes: fill with the companion memo file when one exists (same base name as the transcript with a memo suffix — written from the app's Memo tab during the meeting), plus any memo the user handed over in chat; otherwise leave the section empty for later editing. Use the memo content as context when writing the other sections too.
 
@@ -39,7 +40,7 @@ ${CLAUDE_PLUGIN_ROOT}/templates/meeting-note.md
 
 ## Grounding Rules
 
-- Attribute statements only with speaker labels present in the transcript.
+- Keep speaker labels out of the note — diarization is unreliable, so notes carry unattributed prose. Name a side only with roles the transcript itself states (such as 인벤토리 쪽 or 할당 쪽), and real names only when spoken.
 - Correct only transcription typos that are obvious from context; never reshape meaning by guessing. Mark unclear passages as (unclear).
 - Never invent attendees, dates, owners, or deadlines that were not spoken.
 
