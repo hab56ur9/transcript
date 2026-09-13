@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.28.0-alpha.6](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.5...v0.28.0-alpha.6) (2026-09-02)
+
+
+### Features
+
+* add CLI subcommands, whisper hallucination filter, and dev-doc agent ([#15](https://github.com/hab56ur9/transcript/issues/15)) ([10bc139](https://github.com/hab56ur9/transcript/commit/10bc139374edc3703d6dd8c59fc5494d98983fc4))
+* add transcript correction stage to the plugin pipeline ([#17](https://github.com/hab56ur9/transcript/issues/17)) ([4a96db6](https://github.com/hab56ur9/transcript/commit/4a96db67fbe0e87320dbac5ff4ee584557eb4a52))
+
 ## [0.28.0-alpha.5](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.4...v0.28.0-alpha.5) (2026-08-31)
 
 
