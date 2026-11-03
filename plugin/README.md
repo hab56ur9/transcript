@@ -5,6 +5,7 @@ The distributable part of this repository — what Claude Code and Codex install
 ```bash
 skills/run/       launch, daemon signals, state tracking (+setup.md for new machines)
 skills/backfill/  regenerate any pipeline stage: re-transcribe audio, re-summarize transcripts
+skills/speakers/  attribute utterances to named speakers, live or over a saved transcript
 agents/           meeting-note, lecture-note — transcript → structured note
 templates/        the note formats those agents fill in
 .claude-plugin/   Claude manifest

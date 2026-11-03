@@ -11,8 +11,8 @@ Document style (enforced by dev-review):
 
 Contracts to preserve when editing:
 
-- The pipeline wording: audio → transcript → note, with an optional correction pass producing a corrected sibling between transcript and note; immutable inputs, lineage in frontmatter (engine, source_audio, template, source_transcript).
-- Note agents must exclude generated notes, memos, corrected copies, and backfill transcripts when picking a default target, and must read the corrected sibling when one exists.
+- The pipeline wording: audio → transcript → note, with an optional correction pass producing a corrected sibling and an optional speaker pass producing a speakers sibling between transcript and note; immutable inputs, lineage in frontmatter (engine, source_audio, template, source_transcript).
+- Note agents must exclude generated notes, memos, corrected copies, speakers copies, and backfill transcripts when picking a default target, and must read the corrected sibling when one exists.
 - Signal semantics: USR1 record, USR2 stop and save, TERM quit-after-save.
 
 Release procedure for any change here:
