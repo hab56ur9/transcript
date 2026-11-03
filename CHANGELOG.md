@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0-alpha.7](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.6...v0.28.0-alpha.7) (2026-11-03)
+
+
+### Features
+
+* add live speaker attribution skill ([#18](https://github.com/hab56ur9/transcript/issues/18)) ([1c0eb31](https://github.com/hab56ur9/transcript/commit/1c0eb31211baba9d19700b7c59afea855e2054c0))
+
 ## [0.28.0-alpha.6](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.5...v0.28.0-alpha.6) (2026-09-02)
 
 
