@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0-alpha.9](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.8...v0.28.0-alpha.9) (2026-11-03)
+
+
+### Features
+
+* correct misheard terms in the speakers sibling ([#22](https://github.com/hab56ur9/transcript/issues/22)) ([bc5ace8](https://github.com/hab56ur9/transcript/commit/bc5ace8b6809204c219e620fbb7f7fbbd3726cae))
+
 ## [0.28.0-alpha.8](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.7...v0.28.0-alpha.8) (2026-11-03)
 
 
