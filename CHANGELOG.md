@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0-alpha.8](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.7...v0.28.0-alpha.8) (2026-11-03)
+
+
+### Features
+
+* start speaker attribution automatically with each recording ([#20](https://github.com/hab56ur9/transcript/issues/20)) ([be2467d](https://github.com/hab56ur9/transcript/commit/be2467d59e7d9757888e1e40cc4548ceb9b4ec69))
+
 ## [0.28.0-alpha.7](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.6...v0.28.0-alpha.7) (2026-11-03)
 
 
