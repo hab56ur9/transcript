@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Transcript",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS("14.2")],
     dependencies: [
         .package(url: "https://github.com/argmaxinc/WhisperKit.git", from: "1.1.0"),
         .package(url: "https://github.com/FluidInference/FluidAudio.git", from: "0.15.6")

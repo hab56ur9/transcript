@@ -1,57 +1,78 @@
 import AVFoundation
-import ScreenCaptureKit
+import CoreAudio
 
-final class SystemAudioCapture: NSObject, SCStreamOutput, SCStreamDelegate, AudioSource {
+final class SystemAudioCapture: AudioSource {
     var onSamples: (([Float]) -> Void)?
 
-    private var stream: SCStream?
     private let sampleQueue = DispatchQueue(label: "transcript.systemaudio")
+    private var tapID = AudioObjectID(kAudioObjectUnknown)
+    private var aggregateID = AudioObjectID(kAudioObjectUnknown)
+    private var procID: AudioDeviceIOProcID?
 
-    func start() async throws {
-        let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
-        guard let display = content.displays.first else {
-            throw NSError(
-                domain: "Transcript",
-                code: 1,
-                userInfo: [NSLocalizedDescriptionKey: "no display available"]
-            )
+    func start() throws {
+        do {
+            try startTap()
+        } catch {
+            stop()
+            throw error
         }
-        let filter = SCContentFilter(display: display, excludingWindows: [])
-        let config = SCStreamConfiguration()
-        config.capturesAudio = true
-        config.excludesCurrentProcessAudio = true
-        config.sampleRate = 16_000
-        config.channelCount = 1
-        config.width = 2
-        config.height = 2
-        config.minimumFrameInterval = CMTime(value: 1, timescale: 1)
-
-        let stream = SCStream(filter: filter, configuration: config, delegate: self)
-        try stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: sampleQueue)
-        try await stream.startCapture()
-        self.stream = stream
     }
 
     func stop() {
-        guard let stream else { return }
-        self.stream = nil
-        Task {
-            try? await stream.stopCapture()
+        if let procID {
+            AudioDeviceStop(aggregateID, procID)
+            AudioDeviceDestroyIOProcID(aggregateID, procID)
         }
+        AudioHardwareDestroyAggregateDevice(aggregateID)
+        AudioHardwareDestroyProcessTap(tapID)
+        procID = nil
+        aggregateID = AudioObjectID(kAudioObjectUnknown)
+        tapID = AudioObjectID(kAudioObjectUnknown)
     }
 
-    func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
-        guard type == .audio, let samples = sampleBuffer.floatSamples() else { return }
-        onSamples?(samples)
-    }
-}
+    private func startTap() throws {
+        let tap = CATapDescription(stereoGlobalTapButExcludeProcesses: [])
+        tap.uuid = UUID()
+        tap.isPrivate = true
+        try check(AudioHardwareCreateProcessTap(tap, &tapID))
 
-extension CMSampleBuffer {
-    func floatSamples() -> [Float]? {
-        guard let description = formatDescription?.audioStreamBasicDescription else { return nil }
-        guard description.mFormatID == kAudioFormatLinearPCM else { return nil }
-        guard let blockBuffer = dataBuffer else { return nil }
-        guard let data = try? blockBuffer.dataBytes() else { return nil }
-        return data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        let aggregate: [String: Any] = [
+            kAudioAggregateDeviceNameKey: "Transcript System Audio",
+            kAudioAggregateDeviceUIDKey: UUID().uuidString,
+            kAudioAggregateDeviceIsPrivateKey: true,
+            kAudioAggregateDeviceTapAutoStartKey: true,
+            kAudioAggregateDeviceTapListKey: [[
+                kAudioSubTapDriftCompensationKey: true,
+                kAudioSubTapUIDKey: tap.uuid.uuidString
+            ]]
+        ]
+        try check(AudioHardwareCreateAggregateDevice(aggregate as CFDictionary, &aggregateID))
+
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioTapPropertyFormat,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var description = AudioStreamBasicDescription()
+        var size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
+        try check(AudioObjectGetPropertyData(tapID, &address, 0, nil, &size, &description))
+        guard let format = AVAudioFormat(streamDescription: &description) else { throw failure(kAudioHardwareUnsupportedOperationError) }
+        guard let resampler = AudioResampler(from: format) else { throw failure(kAudioHardwareUnsupportedOperationError) }
+
+        try check(AudioDeviceCreateIOProcIDWithBlock(&procID, aggregateID, sampleQueue) { [weak self] _, input, _, _, _ in
+            guard let buffer = AVAudioPCMBuffer(pcmFormat: format, bufferListNoCopy: input, deallocator: nil) else { return }
+            guard let samples = resampler.resample(buffer) else { return }
+            self?.onSamples?(samples)
+        })
+        try check(AudioDeviceStart(aggregateID, procID))
+    }
+
+    private func check(_ status: OSStatus) throws {
+        guard status != noErr else { return }
+        throw failure(status)
+    }
+
+    private func failure(_ status: OSStatus) -> NSError {
+        NSError(domain: NSOSStatusErrorDomain, code: Int(status))
     }
 }
