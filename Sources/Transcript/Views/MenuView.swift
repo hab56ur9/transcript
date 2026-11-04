@@ -6,8 +6,13 @@ struct MenuBarIcon: View {
 
     var body: some View {
         let session = AppComposition.session
-        Image(systemName: iconName(for: session))
-            .foregroundStyle(iconColor(for: session))
+        HStack(spacing: 2) {
+            Image(systemName: iconName(for: session))
+                .foregroundStyle(iconColor(for: session))
+            if AppFolder.isDev {
+                Text("DEV")
+            }
+        }
         .onAppear {
             guard session.isRecording else { return }
             showTranscript()
