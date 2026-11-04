@@ -6,12 +6,12 @@ user-invocable: true
 
 # Speaker Attribution
 
-The engine's speaker numbers are unreliable: one voice splits across numbers, and one number covers several people. This skill rebuilds who said what, fixes misheard words, and writes a speakers sibling. The raw transcript stays immutable.
+The engine's speaker numbers are unreliable: one voice splits across numbers, and one number covers several people. This skill hands the work to this plugin's speakers agent in the background, so the conversation stays free while it rebuilds who said what and writes a speakers sibling. The raw transcript stays immutable.
 
 ## Selecting the Target
 
-- While recording, the target is the live path in the state file: run the live loop.
-- Otherwise use the named file, or the latest transcript excluding notes, memos, and corrected, speakers, or backfill copies, and run one full pass.
+- While recording, the target is the live path in the state file, in live mode.
+- Otherwise use the named file, or the latest transcript excluding notes, memos, and corrected, speakers, or backfill copies, in saved mode.
 
 Live target lookup:
 
@@ -21,34 +21,17 @@ cat "$HOME/Library/Application Support/Transcript/state.json"
 
 ## Knowing the Context
 
-Collect the cast and a glossary first: attendees and roles from chat, the companion memo, names spoken in the transcript, and product, system, and team terms. Self-references, people addressed by name, and who explains or asks identify speakers. Until names surface, use role labels.
+The agent cannot see the conversation, so gather its context here: attendees and roles from chat, the companion memo, names spoken in the transcript so far, the topic, and product, system, and team terms for the glossary.
 
-## Live Loop
+## Launching the Agent
 
-- Arm a Monitor (or a background command) on the command below with the live path; each event is a batch of new raw lines. It exits when recording ends; re-arm it if it expires.
-- Attribute and correct each batch, then append it to the speakers file. Rewrite only the trailing turn when a later line proves it wrong; earlier turns wait for the final pass.
+- Launch the speakers agent in the background with the target path, the mode, the last raw line already covered (zero for a fresh start), and the context, then end the turn.
+- Names or terms the user mentions mid-recording go to the running agent as a message when the host supports it.
+- The agent's final report arrives when it finishes: relay turn counts, notable fixes, uncertainties, and the path.
+- On hosts without background subagents, follow the agent document inline.
 
-Monitor command:
-
-```bash
-f=<live transcript path>; n=$(wc -l < "$f"); while true; do sleep 60; m=$(wc -l < "$f"); if [ "$m" -gt "$n" ]; then sed -n "$((n+1)),${m}p" "$f"; n=$m; fi; grep -q '^status: live' "$f" || { echo "[recording ended]"; exit 0; }; done
-```
-
-## Rules
-
-- Ignore the engine's numbers; judge each utterance by content and flow.
-- Label turns with the speaker's name in brackets; add a question mark when unsure, and a slash between two candidates.
-- Merge fragments of one speaker's sentence; split a line holding two speakers.
-- Replace a misheard word only when the glossary or context makes the intended term certain, such as names, products, and domain terms; otherwise keep it.
-- Drop lone filler hallucinations and empty dash lines. Mask spoken passwords, credentials, and account numbers.
-
-## Finalizing
-
-When recording ends, or for a saved file, rewrite the whole speakers file in one pass so later evidence fixes earlier guesses. Copy the frontmatter, set status to speakers, add source_transcript, and note that names are inferred. Report turn counts per speaker, notable word fixes, uncertainties, and the path. Local markdown only.
-
-Naming example:
+Agent document:
 
 ```bash
-~/Documents/Transcript/2026-11-03-131258.md
-~/Documents/Transcript/2026-11-03-131258.speakers.md
+../../agents/speakers.md
 ```

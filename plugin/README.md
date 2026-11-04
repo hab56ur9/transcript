@@ -7,6 +7,7 @@ skills/run/       launch, daemon signals, state tracking (+setup.md for new mach
 skills/backfill/  regenerate any pipeline stage: re-transcribe audio, re-summarize transcripts
 skills/speakers/  attribute utterances to named speakers, live or over a saved transcript
 agents/           meeting-note, lecture-note — transcript → structured note
+agents/speakers   background speaker attribution, launched by skills/speakers
 templates/        the note formats those agents fill in
 .claude-plugin/   Claude manifest
 .codex-plugin/    Codex manifest
