@@ -37,12 +37,12 @@ assemble_app() {
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>$version</string>
   <key>CFBundleVersion</key><string>$version</string>
-  <key>LSMinimumSystemVersion</key><string>14.0</string>
+  <key>LSMinimumSystemVersion</key><string>14.2</string>
   <key>LSUIElement</key><true/>
   <key>NSMicrophoneUsageDescription</key><string>Transcript records the microphone to transcribe meetings in real time.</string>
   <key>NSAudioCaptureUsageDescription</key><string>Transcript captures system audio to transcribe remote meeting participants.</string>
 </dict>
 </plist>
 PLIST
-  codesign --force --sign - --identifier "$bundle_id" "$app"
+  codesign --force --sign - --identifier "$bundle_id" --requirements "=designated => identifier \"$bundle_id\"" "$app"
 }

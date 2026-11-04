@@ -37,4 +37,4 @@ Releases are automated with release-please: PR titles follow Conventional Commit
 
 Say "전사 모드 시작" to your agent, or use the menu bar icon. Outputs land in Documents/Transcript. Details: plugin/skills/run/SKILL.md.
 
-Requires macOS 14+. Development additionally needs Xcode Command Line Tools.
+Requires macOS 14.2+. Development additionally needs Xcode Command Line Tools.
