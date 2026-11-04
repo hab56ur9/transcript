@@ -19,6 +19,7 @@ dev bundle  <repo>/.build/TranscriptDev.app
 transcripts ~/Documents/Transcript/
 state file  ~/Library/Application Support/Transcript/state.json
 settings    ~/Library/Application Support/Transcript/settings.json
+dev data    ~/Documents/TranscriptDev/, ~/Library/Application Support/TranscriptDev/
 ```
 
 ## Quick Start
@@ -26,7 +27,7 @@ settings    ~/Library/Application Support/Transcript/settings.json
 - New machine, or the launcher command is missing → follow [setup.md](setup.md) once.
 - Launch with the single launcher command. The installed copy opens the installed release app, installing the newest GitHub release first when missing; `transcript update` refreshes both the app and the CLI to the newest release in seconds (`--install` remains an alias).
 - The repo checkout carries its own bin/transcript, which direnv puts first on PATH inside the repo: that copy builds the local sources into TranscriptDev.app (separate bundle identity and permissions) and opens that instead.
-- Dev and stable share the state file, so only one runs at a time — the launcher refuses to start one track while the other is alive.
+- Dev and stable run side by side: the dev bundle keeps its own TranscriptDev folders for transcripts, state, and settings, and each launcher copy signals only its own track, so testing a dev build never touches a stable recording.
 - The launcher opens the app bundle via open, so microphone and system audio permissions attach to the bundle itself — any launch host (terminal, agent, Finder) works the same.
 - A microphone icon in the menu bar means the app is running; while recording it turns into a filled red icon, and a slashed orange icon means paused. Elapsed time lives in the transcript window, keeping the menu bar item narrow enough to survive crowded menu bars. The menu offers start/stop, pause/resume, opening the transcript window, choosing the transcription language (Korean default, English available), toggling audio saving, and quitting.
 - The transcript window carries the recording controls (elapsed time, pause/resume, stop) and two tabs: a Memo pad first (the default tab), then the live transcript. The memo autosaves next to the transcript as a companion file that the meeting-note agent reads at generation time.

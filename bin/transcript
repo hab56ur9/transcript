@@ -3,19 +3,28 @@ set -euo pipefail
 
 REPO="hab56ur9/transcript"
 STABLE_APP="$HOME/Applications/Transcript.app"
-STABLE_PATTERN="Transcript.app/Contents/MacOS/Transcript"
-DEV_PATTERN="TranscriptDev.app/Contents/MacOS/Transcript"
-SUPPORT="$HOME/Library/Application Support/Transcript"
+SELF_ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+APP_NAME="Transcript"
+if [ -f "$SELF_ROOT/Package.swift" ] && [ -d "$SELF_ROOT/Sources/Transcript" ]
+then
+  APP_NAME="TranscriptDev"
+fi
+PATTERN="$APP_NAME.app/Contents/MacOS/Transcript"
+SUPPORT="$HOME/Library/Application Support/$APP_NAME"
 STATE="$SUPPORT/state.json"
+
+is_dev() {
+  [ "$APP_NAME" = "TranscriptDev" ]
+}
 
 migrate_legacy() {
   if [ -d "$HOME/Documents/VoiceScribe" ] && [ ! -e "$HOME/Documents/Transcript" ]
   then
     mv "$HOME/Documents/VoiceScribe" "$HOME/Documents/Transcript"
   fi
-  if [ -d "$HOME/Library/Application Support/VoiceScribe" ] && [ ! -e "$SUPPORT" ]
+  if [ -d "$HOME/Library/Application Support/VoiceScribe" ] && [ ! -e "$HOME/Library/Application Support/Transcript" ]
   then
-    mv "$HOME/Library/Application Support/VoiceScribe" "$SUPPORT"
+    mv "$HOME/Library/Application Support/VoiceScribe" "$HOME/Library/Application Support/Transcript"
   fi
 }
 
@@ -23,28 +32,18 @@ recording_active() {
   grep -qE '"status":"(recording|paused)"' "$STATE" 2>/dev/null
 }
 
-running_pattern() {
-  if pgrep -f "$STABLE_PATTERN" > /dev/null
-  then
-    echo "$STABLE_PATTERN"
-    return 0
-  fi
-  if pgrep -f "$DEV_PATTERN" > /dev/null
-  then
-    echo "$DEV_PATTERN"
-    return 0
-  fi
-  return 1
+app_running() {
+  pgrep -f "$PATTERN" > /dev/null
 }
 
 signal_running() {
-  local sig="$1" pattern
-  if ! pattern="$(running_pattern)"
+  local sig="$1"
+  if ! app_running
   then
-    echo "실행 중인 Transcript가 없습니다."
+    echo "실행 중인 $APP_NAME가 없습니다."
     exit 1
   fi
-  pkill "-$sig" -f "$pattern"
+  pkill "-$sig" -f "$PATTERN"
   exit 0
 }
 
@@ -98,21 +97,16 @@ is_record() {
 }
 
 launch() {
-  local app="$1" pattern="$2" other="$3"
-  shift 3
-  if pgrep -f "$other" > /dev/null
-  then
-    echo "다른 트랙의 Transcript가 실행 중입니다. 상태 파일이 충돌하니 먼저 종료해주세요: transcript quit"
-    exit 1
-  fi
-  if pgrep -f "$pattern" > /dev/null
+  local app="$1"
+  shift
+  if app_running
   then
     if is_record "$@"
     then
-      pkill -USR1 -f "$pattern"
+      pkill -USR1 -f "$PATTERN"
       exit 0
     fi
-    echo "Transcript이 이미 실행 중입니다."
+    echo "$APP_NAME이 이미 실행 중입니다."
     exit 0
   fi
   if [ $# -gt 0 ]
@@ -132,7 +126,7 @@ run_dev() {
   if [ ! -x "$bin" ] || [ -n "$(find "$root/Sources" "$root/Package.swift" -newer "$bin" 2>/dev/null | head -1)" ]
   then
     echo "Transcript 빌드 중 (dev)..."
-    swift build -c release --package-path "$root"
+    nice -n 20 swift build -c release --package-path "$root"
   fi
   if [ ! -x "$app_bin" ] || [ "$bin" -nt "$app_bin" ]
   then
@@ -142,7 +136,7 @@ run_dev() {
   then
     exec "$app_bin" "$@"
   fi
-  launch "$app" "$DEV_PATTERN" "$STABLE_PATTERN" "$@"
+  launch "$app" "$@"
 }
 
 run_stable() {
@@ -154,7 +148,7 @@ run_stable() {
   then
     exec "$STABLE_APP/Contents/MacOS/Transcript" "$@"
   fi
-  launch "$STABLE_APP" "$STABLE_PATTERN" "$DEV_PATTERN" "$@"
+  launch "$STABLE_APP" "$@"
 }
 
 migrate_legacy
@@ -166,7 +160,7 @@ fi
 
 if [ "${1:-}" = "start" ]
 then
-  if running_pattern > /dev/null
+  if app_running
   then
     signal_running USR1
   fi
@@ -206,9 +200,7 @@ then
   exit 0
 fi
 
-SELF_ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
-
-if [ -f "$SELF_ROOT/Package.swift" ] && [ -d "$SELF_ROOT/Sources/Transcript" ]
+if is_dev
 then
   run_dev "$SELF_ROOT" "$@"
 fi
