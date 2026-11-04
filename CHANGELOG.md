@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0-alpha.11](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.10...v0.28.0-alpha.11) (2026-11-04)
+
+
+### Features
+
+* run dev and stable side by side with separate data folders ([#28](https://github.com/hab56ur9/transcript/issues/28)) ([cedd860](https://github.com/hab56ur9/transcript/commit/cedd860dede377a3a7507d475999b95e0bed06c5))
+
 ## [0.28.0-alpha.10](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.9...v0.28.0-alpha.10) (2026-11-04)
 
 
