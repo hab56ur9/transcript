@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.28.0-alpha.10](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.9...v0.28.0-alpha.10) (2026-11-04)
+
+
+### Features
+
+* run speaker attribution in a background agent ([#24](https://github.com/hab56ur9/transcript/issues/24)) ([74112cf](https://github.com/hab56ur9/transcript/commit/74112cf774835a2f47f103d553d5c333e5a01dd1))
+
+
+### Bug Fixes
+
+* keep permissions across updates and drop screen recording for system audio ([#25](https://github.com/hab56ur9/transcript/issues/25)) ([223d398](https://github.com/hab56ur9/transcript/commit/223d398fc482f517b5708022d4a5883203dfd74c))
+
 ## [0.28.0-alpha.9](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.8...v0.28.0-alpha.9) (2026-11-03)
 
 
