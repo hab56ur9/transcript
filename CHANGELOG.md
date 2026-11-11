@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0-alpha.12](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.11...v0.28.0-alpha.12) (2026-11-11)
+
+
+### Features
+
+* add listen skill to follow a live recording on request ([#30](https://github.com/hab56ur9/transcript/issues/30)) ([05c3dce](https://github.com/hab56ur9/transcript/commit/05c3dcec58d77c81b0bd00162fa6a1b05de3d456))
+
 ## [0.28.0-alpha.11](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.10...v0.28.0-alpha.11) (2026-11-04)
 
 
