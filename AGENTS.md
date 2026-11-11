@@ -8,6 +8,7 @@ Local realtime meeting transcriber for macOS (menu bar app). This file routes co
 - Re-transcribing archived audio and comparing engines: plugin/skills/backfill/SKILL.md
 - Correcting misrecognized domain terms in a transcript: plugin/agents/correct.md
 - Attributing utterances to speakers, live or over a saved transcript: plugin/skills/speakers/SKILL.md routes to plugin/agents/speakers.md, which runs in the background
+- Following a live recording in the conversation on request, reading new lines every minute: plugin/skills/listen/SKILL.md
 - Generating meeting notes from transcripts: plugin/agents/meeting-note.md, with the format fixed by plugin/templates/meeting-note.md
 - Generating development documents from design-discussion transcripts: plugin/agents/dev-doc.md, with the format fixed by plugin/templates/dev-doc.md
 
