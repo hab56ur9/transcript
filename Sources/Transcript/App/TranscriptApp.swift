@@ -3,8 +3,8 @@ import SwiftUI
 
 enum AppComposition {
     @MainActor static let session = RecordingSession(
-        microphone: ArchivingAudioSource(wrapping: PausableAudioSource(wrapping: MicCapture()), suffix: "mic"),
-        auxiliarySources: [ArchivingAudioSource(wrapping: PausableAudioSource(wrapping: SystemAudioCapture()), suffix: "aux1")],
+        microphone: ArchivingAudioSource(wrapping: PausableAudioSource(wrapping: StallRecoveringAudioSource(wrapping: MicCapture())), suffix: "mic"),
+        auxiliarySources: [ArchivingAudioSource(wrapping: PausableAudioSource(wrapping: StallRecoveringAudioSource(wrapping: SystemAudioCapture())), suffix: "aux1")],
         speechToText: HallucinationFilter(wrapping: WhisperKitEngine()),
         speakerIdentifier: FluidAudioLabeler(),
         writer: FileTranscriptStore(engineTag: WhisperKitEngine.modelTag),
