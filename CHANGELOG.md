@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.28.0-alpha.13](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.12...v0.28.0-alpha.13) (2026-11-28)
+
+
+### Features
+
+* follow a known meeting-note upload procedure after the note ([#34](https://github.com/hab56ur9/transcript/issues/34)) ([69b3a14](https://github.com/hab56ur9/transcript/commit/69b3a1452931a8dde3839356446b86c5bc46c51c))
+
+
+### Bug Fixes
+
+* restart audio capture after it stalls on a device change ([#32](https://github.com/hab56ur9/transcript/issues/32)) ([17a28d0](https://github.com/hab56ur9/transcript/commit/17a28d04da1d1055160dd83b19275a1f7cc36427))
+
 ## [0.28.0-alpha.12](https://github.com/hab56ur9/transcript/compare/v0.28.0-alpha.11...v0.28.0-alpha.12) (2026-11-11)
 
 
